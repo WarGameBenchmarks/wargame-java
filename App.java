@@ -3,13 +3,11 @@ import java.util.*;
 
 class WarGameThread extends Thread {
 
-	public int total = 0;
 	public int processed = 0;
 	public boolean terminate = false;
 
-	public WarGameThread( int games  ) {
+	public WarGameThread() {
 		super();
-		this.total = games;
 		start();
 	}
 
@@ -18,8 +16,7 @@ class WarGameThread extends Thread {
 	}
 	
 	public void run() {
-		int end = this.total;
-		for (int i = 0; i < end && !this.terminate; i++) {
+		while ( !this.terminate )
 			this.processed = i;
 			WarGame wg = new WarGame();
 		}	
@@ -82,7 +79,7 @@ class App {
 		int games = scanner.nextInt();
 
 		if ( 0 == threads ) threads = processors;
-		if ( 0 == games ) games = 1000000;
+		if ( 0 == games ) games = 6;
 		
 		games = (int)Math.pow(10, games);
 		
@@ -93,14 +90,14 @@ class App {
 		double completed = 0;
 		long current_time = 0;
 		double speed = 0, last_speed = 0;
-		double stability = 0, stability_threshold = 1000000;
+		double stability = 0, stability_threshold = games;
 		boolean stable = false;
 		String str = "";
 
 		long start = getTime();
 
 		for (int i = 0; i < threads; i++) {
-			ts[i] = new WarGameThread( (int)(games/threads) );
+			ts[i] = new WarGameThread();
 		}
 
 		while ( isAlive(ts) ) {
@@ -129,11 +126,12 @@ class App {
 
 		long end = getTime();
 
-		System.out.print("\r " + pf.format( completed / games ) + "  -  Speed: " + df.format( speed / 1000000 ) + " (ms/g) " + str );
+		System.out.print("\r " + pf.format( stability / stability_threshold ) + " - Speed: " + df.format( speed / 1000000 ) + " (ms/g) " + str );
 
 		System.out.println();
 		System.out.println( "Elasped time: " + ((end - start) / 1000000) + " ms " );
-
+		System.out.println( "Games completed: " + ( getCompleted(ts) ) + " " );
+		
 	}
 
 }
