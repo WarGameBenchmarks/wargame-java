@@ -76,11 +76,16 @@ class App {
 		Scanner scanner = new Scanner(System.in);
 
 		int processors = Runtime.getRuntime().availableProcessors();
-		System.out.print("Enter number of threads ("+processors+"): ");
+		System.out.print("Enter number of threads (enter 0 for "+processors+"): ");
 		int threads = scanner.nextInt();
-		System.out.print("Enter number of iterations (games): ");
+		System.out.print("Enter precision [10^n] (0 for n=6): ");
 		int games = scanner.nextInt();
 
+		if ( 0 == threads ) threads = processors;
+		if ( 0 == games ) games = 1000000;
+		
+		games = (int)Math.pow(10, games);
+		
 		WarGameThread[] ts = new WarGameThread[ threads ];
 
 		long n = 0;
@@ -119,12 +124,12 @@ class App {
 			 last_speed = speed;
 			 
 
-			System.out.print("\r " + pf.format( completed / games ) + "  -  Speed: " + df.format( speed / 1000000 ) + " (ms/g) " + str );
+			System.out.print("\r " + pf.format( stability / stability_threshold ) + " - Speed: " + df.format( speed / 1000000 ) + " (ms/g) " + str );
 		}
 
 		long end = getTime();
 
-		System.out.print("\r " + pf.format( 1 ) + "  -  Speed: " + df.format( speed / 1000000 ) + " (ms/g) " );
+		System.out.print("\r " + pf.format( completed / games ) + "  -  Speed: " + df.format( speed / 1000000 ) + " (ms/g) " + str );
 
 		System.out.println();
 		System.out.println( "Elasped time: " + ((end - start) / 1000000) + " ms " );
