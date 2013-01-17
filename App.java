@@ -62,7 +62,7 @@ class App {
 	public static void main(String[] args) throws Exception {
 		
 		NumberFormat pf = NumberFormat.getPercentInstance();
-		pf.setMaximumFractionDigits(4);
+		pf.setMaximumFractionDigits(2);
 		NumberFormat df = NumberFormat.getInstance();
 		df.setMaximumFractionDigits(4);
 		df.setMinimumFractionDigits(4);
@@ -95,7 +95,10 @@ class App {
 
 			System.out.print( "  -- Enter confidence threshold [10^-n]\n   (enter 0 for " + Math.abs(Math.log10(percent_variation)) + "): " );
 			temp = scanner.nextInt();
-			if ( 0 != temp ) percent_variation = (double)(Math.pow(10, -1 * temp));
+			if ( 0 != temp ) {
+				percent_variation = (double)(Math.pow(10, -1 * temp));
+				if (temp > 4) pf.setMaximumFractionDigits( temp + 1 );
+			}
 			
 
 			System.out.print( "  -- Enter priming time\n   (enter 0 for " + inf.format(prime_time / ns) + " seconds): " );
