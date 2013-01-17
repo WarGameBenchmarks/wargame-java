@@ -7,8 +7,47 @@
 <style type="text/css">
 
 body {
-	font-size: 42px;
+	font-size: 1.5em;
 	font-family: sans-serif;
+	color: #111;
+	margin: 0;
+	padding: 0;
+}
+
+.container {
+	padding: .5em;
+}
+
+.site-title {
+	padding: .7em 0 .7em 0;
+	margin: 0;
+	width: 100%;
+	background-color: #000;
+	color: #fff;
+	text-align: center;
+	font-size: 2.5em;
+}
+.site-motto {
+	font-family: Georgia, serif;
+	text-align: center;
+}
+
+.download {
+	padding: 1.2em;
+	background: #BAFFB8;
+}
+
+.howto {
+	padding: 1.2em;
+	background: #B8F5FF;
+}
+
+.story {
+	font-size: .9em;
+}
+
+li p {
+	padding-left: 1em;
 }
 
 </style>
@@ -16,14 +55,71 @@ body {
 </head>
 <body>
 
+<h1 class="site-title">WarGame 2</h1>
+
 <div class="container">
 
-	<h1>WarGame 2</h1>
-	<h2>Kinda-Sorta Benchmarking in Java</h2>
+	<h2 class="site-motto">Kinda-Sorta Basic Benchmarking in Java</h2>
 
 	<div class="download">
-		
+		<p>Download the <a href="zip/wg2.zip">WarGame 2 source and class files</a>.</p>
 	</div>
+
+
+	<p>To run the WarGame:</p>
+	<blockquote class="howto">
+			java App
+	</blockquote>
+
+	This will run like so:
+	<ol>
+		<li>Priming phase: 60 seconds of games running in attempt to mitigate overhead of setup and to reach a stable speed</li>
+		<li>Testing phase: Determine if the speed is within a <em>+/-</em>00.01% range, check in <em>(1/speed)</em> seconds</li>
+		<li>Retesting phase: if the speed is <em>not</em> within the range, test again in (1/speed) seconds</li>
+		<li>Results phase: display the results</li>
+	</ol>
+
+	<p>The WarGame program has three primary <em>settings</em>:</p>
+	<ul>
+		<li><em>Threads</em>: by default, the number of <a href="https://www.google.com/search?q=logical+cores">logical cores</a> available</li>
+		<li><em>Confidence</em>: the change allowed during the testing phase, as a percentage. By default, <em>00.01%</em>.
+			<p>For example, if the speed at the beginning of the testing phase is <em>.2345</em>, then the confidence range would be <br />
+				0.23447655 &lt; <em>.2345</em> &lt; 0.23452345
+			</p>
+		</li>
+		<li><em>Prime time</em>: by default, 60 seconds
+			<p>Prime time allows the program to reach a period of stability before testing begins.
+
+			</p>
+		</li>
+	</ul>
+
+	<h3>Modes</h3>
+	<p>The WarGame has various modes: Help, Short and Interactive.</p>
+
+	<h4>Short</h4>
+	<blockquote class="howto">
+			java App s
+	</blockquote>
+	<p>This mode will run the WarGame program with 1% confidence and a 10 second priming phase.</p>
+
+	<h4>Interactive</h4>
+	<blockquote class="howto">
+			java App i
+	</blockquote>
+	<p>This mode will run the WarGame program with user specified settings, those being <em>threads</em>, <em>confidence</em> and <em>prime time</em>.</p>
+
+	<h3>Backstory</h3>
+	<div class="story">
+		<p>When I was in tenth grade, I spent a week or so coding the original WarGame &mdash; a simulator for playing war. The sim was fine, but my favorite past time was running it on various computers with a <em>million games</em> to see how long it would end up taking. In 2012, I built a new computer with an incredibly fast processor and I needed something better to test it than my original WarGame.</p>
+
+		<p>Thus, the WarGame 2 was made. The second generation WarGame is the same at its core -- the game of War simulating two people playing cards. But the advancements are in the details: multiple threads play simultaneously (or whatever is an approximate of that) and a testing method that scales based on hardware capabilities. Threading makes full use cores available while the scaling method used allows for some degree of precision and consistency between runs. A faster computer will run more games for longer to ensure that its speed isn't fooling anyone.</p>
+
+		<hr />
+
+		<p>A note on the <em>scaling</em> method; after a minute, we time a test for 1/speed at that instant. On a slow computer, this will be only be another second or so of extra time. On a fast computer (like mine, or maybe a server), this ends up being thirty extra seconds of time, per test. Because the program use a 00.01% confidence range, there are often many tests. If the speed at the instant is not within the <em>+/-</em>00.01% range, the test starts over again with another (1/speed) seconds of time. Total times around ten minutes are <em>not</em> unheard of.</p>
+	</div>
+
 
 </div>
 
