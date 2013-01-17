@@ -16,8 +16,8 @@ class WarGameThread extends Thread {
 	}
 	
 	public void run() {
-		while ( !this.terminate )
-			this.processed = i;
+		while ( !this.terminate ) {
+			this.processed++;
 			WarGame wg = new WarGame();
 		}	
 
@@ -40,7 +40,7 @@ class App {
 		return life;
 	}
 
-	public static synchronized int getCompleted(WarGameThread[] threads) {
+	public static int getCompleted(WarGameThread[] threads) {
 		int processed = 0;
 		for (WarGameThread t : threads ) {
 			processed = processed + t.processed;
@@ -67,8 +67,9 @@ class App {
 		pf.setMaximumIntegerDigits(3);
 		pf.setMinimumIntegerDigits(2);
 		NumberFormat df = NumberFormat.getInstance();
-		df.setMaximumFractionDigits(3);
-		df.setMinimumFractionDigits(3);
+		df.setMaximumFractionDigits(4);
+		df.setMinimumFractionDigits(4);
+		NumberFormat inf = NumberFormat.getIntegerInstance();
 
 		Scanner scanner = new Scanner(System.in);
 
@@ -78,6 +79,8 @@ class App {
 		System.out.print("Enter precision [10^n] (0 for n=6): ");
 		int games = scanner.nextInt();
 
+		System.out.println();		
+		
 		if ( 0 == threads ) threads = processors;
 		if ( 0 == games ) games = 6;
 		
@@ -90,7 +93,7 @@ class App {
 		double completed = 0;
 		long current_time = 0;
 		double speed = 0, last_speed = 0;
-		double stability = 0, stability_threshold = games;
+		double stability = 0, stability_threshold = games / 2;
 		boolean stable = false;
 		String str = "";
 
@@ -101,7 +104,7 @@ class App {
 		}
 
 		while ( isAlive(ts) ) {
-			if ( (n++ % polling) != 0 ) continue;
+			
 			 completed = getCompleted(ts);
 			 current_time = getTime() - start;
 
@@ -110,7 +113,7 @@ class App {
 				str = "(+)";
 				terminateThreads(ts);
 			 }
-			 else if ( (speed - last_speed)/last_speed < 0.000005 ) {
+			 else if ( (speed - last_speed)/last_speed < 0.0000000005 ) {
 				stability++;
 				str = "(-)";
 				if ( stability >= stability_threshold ) {
@@ -129,9 +132,16 @@ class App {
 		System.out.print("\r " + pf.format( stability / stability_threshold ) + " - Speed: " + df.format( speed / 1000000 ) + " (ms/g) " + str );
 
 		System.out.println();
-		System.out.println( "Elasped time: " + ((end - start) / 1000000) + " ms " );
-		System.out.println( "Games completed: " + ( getCompleted(ts) ) + " " );
+		System.out.println();
 		
+		System.out.println("Using " + threads + " threads and " + games + " levels of precision..." );
+		System.out.println();
+		
+		System.out.println( "  Elasped time: " + inf.format((end - start) / 1000000) + " ms or about " + df.format((end - start) / 1000000.0 / 1000.0 / 60.0) + " minutes ");
+		System.out.println( "  Games completed: " + inf.format( getCompleted(ts) ) + " " );
+		System.out.println( "  Final speed: " + df.format( speed / 1000000 ) + " ms/g" );
+		
+		System.out.println();
 	}
 
 }
