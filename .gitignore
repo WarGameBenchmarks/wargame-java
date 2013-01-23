@@ -6,4 +6,14 @@
 *.ear
 
 # zips
-zip/
+zips/
+
+# stuff
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db

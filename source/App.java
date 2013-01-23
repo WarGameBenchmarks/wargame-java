@@ -74,7 +74,7 @@ class App {
 		System.out.println( "    =====================    " );
 		System.out.println( "    ====  WarGame 2  ====    " );
 		System.out.println( "    =====           =====    " );
-		System.out.println( "    ====== Ver 1.0 ======    " );
+		System.out.println( "    ===   V 1.0.0.1   ===    " );
 		System.out.println( "    =====================    " );
 		System.out.println();
 
