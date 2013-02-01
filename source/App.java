@@ -139,6 +139,7 @@ class App {
 
 
 		String display_tail = "";
+		long print_last = getTime();
 
 		int tests = 1;
 		double completed = 0;
@@ -148,6 +149,7 @@ class App {
 
 		boolean test_started = false;
 
+		long elapsed_time = 0;
 		long current_time = 0;
 		long test_initial = 0;
 		long test_duration = 0;
@@ -161,28 +163,30 @@ class App {
 		while ( isAlive(wgts) ) {
 			
 			 completed = getCompleted(wgts);
-			 current_time = getTime() - start;
+			 current_time = getTime();
+			 elapsed_time = current_time - start;
 
-			 speed = current_time / completed;
+			 speed = 1 / (elapsed_time / completed);
+			 //speed = completed / elapsed_time;
 
-			 if ( !test_started && current_time >= prime_time ) {
+			 if ( !test_started && elapsed_time >= prime_time ) {
 				test_started = true;
-				test_duration = (long)(1 + Math.ceil( 1 / (speed / ms) ));
-				test_initial = current_time + ( test_duration * ns);
+				test_duration = (long)(1 + Math.ceil( (speed * ms) ));
+				test_initial = elapsed_time + ( test_duration * ns);
 				percent_speed = speed * percent_variation;
 				speed_low = speed - percent_speed;
 				speed_high = speed + percent_speed;
 				prime_speed = speed;
 				System.out.println();
-			 } else if ( test_started && current_time >= test_initial ) {
+			 } else if ( test_started && elapsed_time >= test_initial ) {
 
 			 	if ( speed_low < speed && speed < speed_high ) {
 			 		terminateThreads(wgts);
 			 	} else if ( tests >= 100 ) {
 			 		terminateThreads(wgts);
 			 	} else {
-					test_duration = (long)(1 + Math.ceil( 1 / (speed / ms) ));
-					test_initial = current_time + ( test_duration * ns);
+					test_duration = (long)(1 + Math.ceil( (speed * ms) ));
+					test_initial = elapsed_time + ( test_duration * ns);
 					percent_speed = speed * percent_variation;
 					speed_low = speed - percent_speed;
 					speed_high = speed + percent_speed;
@@ -191,17 +195,21 @@ class App {
 
 			 }
 			 else {
-			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - current_time) / ns ) + " seconds";
-			 	else display_tail = inf.format( (prime_time - current_time) / ns ) + " seconds left...";
+			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - elapsed_time) / ns ) + " seconds";
+			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left...";
 			 }
 			 
 
-			System.out.print("\r " + " Speed: " + df.format( speed / ms ) + " (ms/g) - " + display_tail );
+			 if ( ( current_time - print_last) > (1000 * ms) ) {
+			 	print_last = current_time;
+			 	System.out.print("\r " + " Speed: " + df.format( (speed * ms) ) + " (g/ms) - " + display_tail );
+			 }
+
 		}
 
 		long end = getTime();
 
-		System.out.print("\r " + " Speed: " + df.format( speed / ms ) + " (ms/g) " + display_tail );
+		System.out.print("\r " + " Speed: " + df.format( (speed * ms) ) + " (g/ms) - " + display_tail );
 
 		System.out.println();
 		System.out.println();
@@ -216,13 +224,12 @@ class App {
 		System.out.println();
 		
 		System.out.println( "  " + inf.format(tests) + " tests improved speed by " + pf.format( 1 - (speed / prime_speed) ) + "");
-		System.out.println( "   from " + df.format(prime_speed / ms) + " (ms/g) to " + df.format(speed / ms) + "");
-		System.out.println( "  Final confidence range:\n   " + df.format(speed_low / ms) + " (ms/g) < " + df.format(speed / ms) + " (ms/g) < " + df.format(speed_high / ms) + " (ms/g)" );
+		System.out.println( "   from " + df.format(prime_speed * ms) + " (ms/g) to " + df.format(speed * ms) + "");
+		System.out.println( "  Final confidence range:\n   " + df.format(speed_low * ms) + " (g/ms) < " + df.format(speed * ms) + " (g/ms) < " + df.format(speed_high * ms) + " (g/ms)" );
 
 		System.out.println();
 
-		System.out.println( "  Final speed: " + df.format( speed / ms ) + " ms/g" );
-		System.out.println( "  Final speed: " + df.format( 1 / (speed / ms) ) + " g/ms" );
+		System.out.println( "  Final speed: " + df.format( (speed * ms) ) + " (g/ms)" );
 		
 		System.out.println();
 	}
