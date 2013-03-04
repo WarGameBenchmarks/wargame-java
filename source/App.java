@@ -74,7 +74,7 @@ class App {
 		System.out.println( "    =====================    " );
 		System.out.println( "    ====  WarGame 2  ====    " );
 		System.out.println( "    =====           =====    " );
-		System.out.println( "    ===   V 1.0.0.1   ===    " );
+		System.out.println( "    ===   V 1.0.1.0   ===    " );
 		System.out.println( "    =====================    " );
 		System.out.println();
 
@@ -223,8 +223,8 @@ class App {
 
 		System.out.println();
 		
-		System.out.println( "  " + inf.format(tests) + " tests improved speed by " + pf.format( 1 - (speed / prime_speed) ) + "");
-		System.out.println( "   from " + df.format(prime_speed * ms) + " (ms/g) to " + df.format(speed * ms) + "");
+		System.out.println( "  " + inf.format(tests) + " tests improved speed by " + pf.format( 1 - (prime_speed / speed) ) + "");
+		System.out.println( "   from " + df.format(prime_speed * ms) + " (g/ms) to " + df.format(speed * ms) + " (g/ms)");
 		System.out.println( "  Final confidence range:\n   " + df.format(speed_low * ms) + " (g/ms) < " + df.format(speed * ms) + " (g/ms) < " + df.format(speed_high * ms) + " (g/ms)" );
 
 		System.out.println();
