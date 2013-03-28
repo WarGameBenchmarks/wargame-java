@@ -1,30 +1,6 @@
 import java.text.*;
 import java.util.*;
 
-class WarGameThread extends Thread {
-
-	public int processed = 0;
-	public boolean terminate = false;
-
-	public WarGameThread() {
-		super();
-		start();
-	}
-
-	public void terminate() {
-		this.terminate = true;
-	}
-	
-	public void run() {
-		while ( !this.terminate ) {
-			this.processed++;
-			WarGame wg = new WarGame();
-		}	
-
-	}
-
-}
-
 class App {
 
 
@@ -59,24 +35,45 @@ class App {
 		return System.nanoTime();
 	}
 
-	public static void main(String[] args) throws Exception {
-		
-		NumberFormat pf = NumberFormat.getPercentInstance();
-		pf.setMaximumFractionDigits(2);
-		NumberFormat df = NumberFormat.getInstance();
-		df.setMaximumFractionDigits(4);
-		df.setMinimumFractionDigits(4);
-		NumberFormat inf = NumberFormat.getIntegerInstance();
+	public static void print_help() {
+			System.out.println( "  --- Help");
+			System.out.println( "  ---  java App: runs with default settings");
+			System.out.println( "  ---  java App s: runs a short test");
+			System.out.println( "  ---  java App i: allows user to choose settings");
+			System.out.println( "  ---  java App help: displays this information");
+			System.out.println( "    --  threads: defaults to the number of logical processors available");
+			System.out.println( "    --  confidence threshold: defaults to 00.01%, results will be +/- .01%");
+			System.out.println( "    --  prime time: the period to wait before beginning testing");
+			System.out.println( "  ---  Visit http://ifupdown.com/wg for more information...");
+			System.out.println();
+			System.out.println();
+	}
 
-		final long ms = 1000000L;
-		final long ns = 1000000000L;
-
+	public static void print_header() {
 		System.out.println( "    =====================    " );
 		System.out.println( "    ====  WarGame 2  ====    " );
 		System.out.println( "    =====           =====    " );
 		System.out.println( "    ===   V 1.0.1.0   ===    " );
 		System.out.println( "    =====================    " );
 		System.out.println();
+	}
+
+	public static void main(String[] args) throws Exception {
+		
+		print_header();
+
+		NumberFormat pf = NumberFormat.getPercentInstance();
+		NumberFormat df = NumberFormat.getInstance();
+		NumberFormat inf = NumberFormat.getIntegerInstance();
+
+		pf.setMaximumFractionDigits(2);
+		df.setMaximumFractionDigits(4);
+		df.setMinimumFractionDigits(4);
+
+
+		final long ms = 1000000L;
+		final long ns = 1000000000L;
+
 
 		int threads = Runtime.getRuntime().availableProcessors();
 		double percent_variation = 0.0001;
@@ -107,22 +104,11 @@ class App {
 
 		} else if ( args.length > 0 && args[0].equals("s") ) {
 			System.out.println( " --- Short Run Mode" );
-
 			percent_variation = (double)(Math.pow(10, -1 * 2));
 			prime_time = ns * (long)10;
 
 		} else if ( args.length > 0 && (args[0].equals("h") || args[0].equals("help")) ) {
-			System.out.println( "  --- Help");
-			System.out.println( "  ---  java App: runs with default settings");
-			System.out.println( "  ---  java App s: runs a short test");
-			System.out.println( "  ---  java App i: allows user to choose settings");
-			System.out.println( "  ---  java App help: displays this information");
-			System.out.println( "    --  threads: defaults to the number of logical processors available");
-			System.out.println( "    --  confidence threshold: defaults to 00.01%, results will be +/- .01%");
-			System.out.println( "    --  prime time: the period to wait before beginning testing");
-			System.out.println( "  ---  Visit http://ifupdown.com/wg for more information...");
-			System.out.println();
-			System.out.println();
+			print_help();
 			System.exit(1);
 		}
 
@@ -130,10 +116,7 @@ class App {
 		System.out.println( "  Using " + threads + " for number of threads." );
 		System.out.println( "  Using " + Math.abs(Math.log10(percent_variation)) + " [" + pf.format(percent_variation) + "] for confidence threshold." );
 		System.out.println( "  Using " + inf.format(prime_time / ns) + " seconds for prime time." );
-
 		System.out.println();
-		System.out.println("Beginning priming phase...");		
-		System.out.println();		
 				
 		WarGameThread[] wgts = new WarGameThread[ threads ];
 
@@ -144,7 +127,8 @@ class App {
 		int tests = 1;
 		double completed = 0;
 		double speed = 0;
-		double speed_low = 0, speed_high = 0, prime_speed = 0;
+		double rate = 0;
+		double rate_low = 0, rate_high = 0, prime_speed = 0;
 		double percent_speed = 0;
 
 		boolean test_started = false;
@@ -166,43 +150,48 @@ class App {
 			 current_time = getTime();
 			 elapsed_time = current_time - start;
 
-			 speed = 1 / (elapsed_time / completed);
-			 //speed = completed / elapsed_time;
+			 rate = (elapsed_time / completed);
+			 speed = 1 / rate;
 
 			 if ( !test_started && elapsed_time >= prime_time ) {
 				test_started = true;
+				
 				test_duration = (long)(1 + Math.ceil( (speed * ms) ));
-				test_initial = elapsed_time + ( test_duration * ns);
-				percent_speed = speed * percent_variation;
-				speed_low = speed - percent_speed;
-				speed_high = speed + percent_speed;
+				test_initial = elapsed_time + ( test_duration * ns );
+
+				percent_speed = rate * percent_variation;
+
+				rate_low = rate - percent_speed;
+				rate_high = rate + percent_speed;
+
 				prime_speed = speed;
 				System.out.println();
 			 } else if ( test_started && elapsed_time >= test_initial ) {
 
-			 	if ( speed_low < speed && speed < speed_high ) {
+			 	if ( rate_low < rate && rate < rate_high ) {
 			 		terminateThreads(wgts);
 			 	} else if ( tests >= 100 ) {
 			 		terminateThreads(wgts);
 			 	} else {
+
 					test_duration = (long)(1 + Math.ceil( (speed * ms) ));
-					test_initial = elapsed_time + ( test_duration * ns);
-					percent_speed = speed * percent_variation;
-					speed_low = speed - percent_speed;
-					speed_high = speed + percent_speed;
+					test_initial = elapsed_time + ( test_duration * ns );
+
+					percent_speed = rate * percent_variation;
+
+					rate_low = rate - percent_speed;
+					rate_high = rate + percent_speed;
 					tests++;
 			 	}
 
-			 }
-			 else {
-			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - elapsed_time) / ns ) + " seconds";
-			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left...";
-			 }
-			 
+			 }			 
 
 			 if ( ( current_time - print_last) > (1000 * ms) ) {
+			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - elapsed_time) / ns  ) + " seconds";
+			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left...";
 			 	print_last = current_time;
 			 	System.out.print("\r " + " Speed: " + df.format( (speed * ms) ) + " (g/ms) - " + display_tail );
+			 	//Thread.sleep(500);
 			 }
 
 		}
@@ -225,7 +214,7 @@ class App {
 		
 		System.out.println( "  " + inf.format(tests) + " tests improved speed by " + pf.format( 1 - (prime_speed / speed) ) + "");
 		System.out.println( "   from " + df.format(prime_speed * ms) + " (g/ms) to " + df.format(speed * ms) + " (g/ms)");
-		System.out.println( "  Final confidence range:\n   " + df.format(speed_low * ms) + " (g/ms) < " + df.format(speed * ms) + " (g/ms) < " + df.format(speed_high * ms) + " (g/ms)" );
+		System.out.println( "  Final confidence range:\n   " + df.format(1/rate_high * ms) + " (g/ms) < " + df.format(speed * ms) + " (g/ms) < " + df.format(1/rate_low * ms) + " (g/ms)" );
 
 		System.out.println();
 
