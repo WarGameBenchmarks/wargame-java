@@ -203,22 +203,25 @@ class App {
 		System.out.println();
 		System.out.println();
 				
-		System.out.println( "  Elasped time: " + inf.format((end - start) / ns) + " seconds or about " + df.format((end - start) / ms / 1000.0 / 60.0) + " minutes ");
-		System.out.println( "  Games completed: " + inf.format( getCompleted(wgts) ) + " " );
-		System.out.println( "  Tests completed: " + inf.format( tests ) + " " );
-		System.out.println( "  Threads used: " + threads + " ");
-		System.out.println( "  Confidence: " + pf.format( percent_variation ) + " " );
+		System.out.println( "  Elapsed time: " + inf.format((end - start) / ns) + " seconds or ~" + df.format((end - start) / ms / 1000.0 / 60.0) + " minutes.");
+		System.out.println( "  Games completed: " + inf.format( getCompleted(wgts) ) + "." );
+		System.out.println( "  Tests completed: " + inf.format( tests ) + "." );
+		System.out.println( "  Threads used: " + threads + ".");
+		System.out.println( "  Confidence: " + pf.format( percent_variation ) + "." );
 
 
 		System.out.println();
 		
 		System.out.println( "  " + inf.format(tests) + " tests improved speed by " + pf.format( 1 - (prime_speed / speed) ) + "");
 		System.out.println( "   from " + df.format(prime_speed * ms) + " (g/ms) to " + df.format(speed * ms) + " (g/ms)");
-		System.out.println( "  Final confidence range:\n   " + df.format(1/rate_high * ms) + " (g/ms) < " + df.format(speed * ms) + " (g/ms) < " + df.format(1/rate_low * ms) + " (g/ms)" );
+		System.out.println( "  Final confidence range:\n   " + df.format(1/rate_low * ms) + " (g/ms) > " + df.format(speed * ms) + " (g/ms) > " + df.format(1/rate_high * ms) + " (g/ms)" );
 
 		System.out.println();
 
-		System.out.println( "  Final speed: " + df.format( (speed * ms) ) + " (g/ms)" );
+		System.out.println( "  Final rate: \t" + df.format( (rate / ms) ) + " (ms/g)" );
+		System.out.println( "  Final speed: \t" + df.format( (speed * ms) ) + " (g/ms)" );
+		System.out.println();
+		System.out.println( "  Final speed: \t" + inf.format( Math.round((speed * ms) * 1000)) + " (g/s)" );
 		
 		System.out.println();
 	}
