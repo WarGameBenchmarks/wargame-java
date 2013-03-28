@@ -169,15 +169,17 @@ class App {
 			 current_time = getTime();
 			 elapsed_time = current_time - start;
 
-			 //speed = 1 / (elapsed_time / completed);
-			 speed = completed / elapsed_time;
+			 speed = 1 / (elapsed_time / completed);
+			 //speed = completed / elapsed_time;
 
 			 if ( !test_started && elapsed_time >= prime_time ) {
 				test_started = true;
-				// test_duration = (long)(1 + Math.ceil( (speed * ms) ));
-				// test_initial = elapsed_time + ( test_duration * ns);
-				test_duration = (long)(1 + Math.ceil( 1 / (speed / ms) ));
+				
+				test_duration = (long)(1 + Math.ceil( (speed * ms) ));
 				test_initial = elapsed_time + ( test_duration * ns);
+				// test_duration = (long)(1 + Math.ceil( 1 / (speed / ms) ));
+				// test_initial = elapsed_time + ( test_duration * ns) ;
+
 				percent_speed = speed * percent_variation;
 				speed_low = speed - percent_speed;
 				speed_high = speed + percent_speed;
@@ -190,10 +192,12 @@ class App {
 			 	} else if ( tests >= 100 ) {
 			 		terminateThreads(wgts);
 			 	} else {
-					// test_duration = (long)(1 + Math.ceil( (speed * ms) ));
-					// test_initial = elapsed_time + ( test_duration * ns);
-					test_duration = (long)(1 + Math.ceil( 1 / (speed / ms) ));
+
+					test_duration = (long)(1 + Math.ceil( (speed * ms) ));
 					test_initial = elapsed_time + ( test_duration * ns);
+					// test_duration = (long)(1 + Math.ceil( 1 / (speed / ms) ));
+					// test_initial = elapsed_time + ( test_duration * ns );
+
 					percent_speed = speed * percent_variation;
 					speed_low = speed - percent_speed;
 					speed_high = speed + percent_speed;
@@ -202,7 +206,7 @@ class App {
 
 			 }
 			 else {
-			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - current_time) / ns / ms ) + " seconds";
+			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - elapsed_time) / ns  ) + " seconds";
 			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left...";
 			 }
 			 
