@@ -170,15 +170,12 @@ class App {
 			 elapsed_time = current_time - start;
 
 			 speed = 1 / (elapsed_time / completed);
-			 //speed = completed / elapsed_time;
 
 			 if ( !test_started && elapsed_time >= prime_time ) {
 				test_started = true;
 				
 				test_duration = (long)(1 + Math.ceil( (speed * ms) ));
-				test_initial = elapsed_time + ( test_duration * ns);
-				// test_duration = (long)(1 + Math.ceil( 1 / (speed / ms) ));
-				// test_initial = elapsed_time + ( test_duration * ns) ;
+				test_initial = elapsed_time + ( test_duration * ns );
 
 				percent_speed = speed * percent_variation;
 				speed_low = speed - percent_speed;
@@ -194,9 +191,7 @@ class App {
 			 	} else {
 
 					test_duration = (long)(1 + Math.ceil( (speed * ms) ));
-					test_initial = elapsed_time + ( test_duration * ns);
-					// test_duration = (long)(1 + Math.ceil( 1 / (speed / ms) ));
-					// test_initial = elapsed_time + ( test_duration * ns );
+					test_initial = elapsed_time + ( test_duration * ns );
 
 					percent_speed = speed * percent_variation;
 					speed_low = speed - percent_speed;
