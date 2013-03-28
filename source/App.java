@@ -1,30 +1,6 @@
 import java.text.*;
 import java.util.*;
 
-class WarGameThread extends Thread {
-
-	public int processed = 0;
-	public boolean terminate = false;
-
-	public WarGameThread() {
-		super();
-		start();
-	}
-
-	public void terminate() {
-		this.terminate = true;
-	}
-	
-	public void run() {
-		while ( !this.terminate ) {
-			this.processed++;
-			WarGame wg = new WarGame();
-		}	
-
-	}
-
-}
-
 class App {
 
 
@@ -73,24 +49,31 @@ class App {
 			System.out.println();
 	}
 
-	public static void main(String[] args) throws Exception {
-		
-		NumberFormat pf = NumberFormat.getPercentInstance();
-		pf.setMaximumFractionDigits(2);
-		NumberFormat df = NumberFormat.getInstance();
-		df.setMaximumFractionDigits(4);
-		df.setMinimumFractionDigits(4);
-		NumberFormat inf = NumberFormat.getIntegerInstance();
-
-		final long ms = 1000000L;
-		final long ns = 1000000000L;
-
+	public static void print_header() {
 		System.out.println( "    =====================    " );
 		System.out.println( "    ====  WarGame 2  ====    " );
 		System.out.println( "    =====           =====    " );
 		System.out.println( "    ===   V 1.0.1.0   ===    " );
 		System.out.println( "    =====================    " );
 		System.out.println();
+	}
+
+	public static void main(String[] args) throws Exception {
+		
+		print_header();
+
+		NumberFormat pf = NumberFormat.getPercentInstance();
+		NumberFormat df = NumberFormat.getInstance();
+		NumberFormat inf = NumberFormat.getIntegerInstance();
+
+		pf.setMaximumFractionDigits(2);
+		df.setMaximumFractionDigits(4);
+		df.setMinimumFractionDigits(4);
+
+
+		final long ms = 1000000L;
+		final long ns = 1000000000L;
+
 
 		int threads = Runtime.getRuntime().availableProcessors();
 		double percent_variation = 0.0001;
@@ -133,6 +116,14 @@ class App {
 		System.out.println( "  Using " + threads + " for number of threads." );
 		System.out.println( "  Using " + Math.abs(Math.log10(percent_variation)) + " [" + pf.format(percent_variation) + "] for confidence threshold." );
 		System.out.println( "  Using " + inf.format(prime_time / ns) + " seconds for prime time." );
+
+		long print_test_start = getTime();
+		int times = (int)1000000;
+		for (int i = 0; i < times; i++) {
+			System.out.print("\0");
+		}
+		long print_test_end = getTime();
+		System.out.println(inf.format( (print_test_end - print_test_start) / ns  ) + " seconds");
 
 		System.out.println();
 		System.out.println("Beginning priming phase...");		
