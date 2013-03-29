@@ -191,7 +191,7 @@ class App {
 			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left...";
 			 	print_last = current_time;
 			 	System.out.print("\r " + " Speed: " + df.format( (speed * ms) ) + " (g/ms) - " + display_tail );
-			 	//Thread.sleep(500);
+			 	Thread.sleep(500);
 			 }
 
 		}
