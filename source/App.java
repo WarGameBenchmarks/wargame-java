@@ -187,11 +187,16 @@ class App {
 
 			 }			 
 
-			 if ( ( current_time - print_last) > (1000 * ms) ) {
+			 if ( ( current_time - print_last ) > (1000 * ms) ) {
+
 			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - elapsed_time) / ns  ) + " seconds";
 			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left...";
-			 	print_last = current_time;
+
+			 	
 			 	System.out.print("\r " + " Speed: " + df.format( (speed * ms) ) + " (g/ms) - " + display_tail );
+			 	
+				print_last = current_time;
+
 			 	Thread.sleep(500);
 			 }
 
@@ -205,16 +210,13 @@ class App {
 		System.out.println();
 				
 		System.out.println( "  Elapsed time: \n\t" + 
-			inf.format((end - start) / ns) + " seconds or \n\t~" + df.format((end - start) / ms / 1000.0 / 60.0) + " minutes");
+			inf.format((end - start) / ns) + " seconds \n\t~" + df.format((end - start) / ms / 1000.0 / 60.0) + " minutes");
 		System.out.println( "  Games completed: \t" + inf.format( getCompleted(wgts) ) + " " );
 		System.out.println( "  Tests completed: \t" + inf.format( tests ) + " " );
-		System.out.println( "  Threads used: \t" + threads + " ");
-		System.out.println( "  Confidence range: \t" + pf.format( percent_variation ) + " " );
-
 
 		System.out.println();
 		
-		System.out.println( "  " + inf.format(tests) + " tests improved speed by " + pf.format( 1 - (prime_speed / speed) ) + "");
+		System.out.println( "  Speed improvement: " + pf.format( 1 - (prime_speed / speed) ) + "");
 		System.out.println( "   from " + df.format(prime_speed * ms) + " (g/ms) to " + df.format(speed * ms) + " (g/ms)");
 		System.out.println( "  Final confidence range:\n   " + df.format(1/rate_low * ms) + " (g/ms) > " + df.format(speed * ms) + " (g/ms) > " + df.format(1/rate_high * ms) + " (g/ms)" );
 
@@ -223,7 +225,7 @@ class App {
 		System.out.println( "  Final rate: \t" + df.format( (rate / ms) ) + " (ms/g)" );
 		System.out.println( "  Final speed: \t" + df.format( (speed * ms) ) + " (g/ms)" );
 		System.out.println();
-		System.out.println( "  Final speed: \t" + inf.format( Math.round((speed * ms) * 1000)) + " (g/s)" );
+		System.out.println( "  Final speed: \t" + inf.format( (speed * ms) * 1000) + " (g/s)" );
 		
 		System.out.println();
 	}
