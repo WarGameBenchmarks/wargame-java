@@ -3,8 +3,6 @@ import java.util.*;
 
 class App {
 
-
-
 	public static boolean isAlive(WarGameThread[] threads) {
 		boolean life = false;
 		for (WarGameThread t : threads) {
@@ -190,7 +188,7 @@ class App {
 			 if ( ( current_time - print_last ) > (1000 * ms) ) {
 
 			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - elapsed_time) / ns  ) + " seconds";
-			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left...";
+			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left";
 
 			 	
 			 	System.out.print("\r " + " Speed: " + df.format( (speed * ms) ) + " (g/ms) - " + display_tail );
