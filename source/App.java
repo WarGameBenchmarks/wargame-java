@@ -129,7 +129,7 @@ class App {
 		double speed = 0;
 		double rate = 0;
 		double rate_low = 0, rate_high = 0, prime_speed = 0;
-		double percent_speed = 0;
+		double percent_rate = 0;
 
 		boolean test_started = false;
 
@@ -159,13 +159,13 @@ class App {
 				test_duration = (long)(1 + Math.ceil( (speed * ms) ));
 				test_initial = elapsed_time + ( test_duration * ns );
 
-				percent_speed = rate * percent_variation;
+				percent_rate = rate * percent_variation;
 
-				rate_low = rate - percent_speed;
-				rate_high = rate + percent_speed;
+				rate_low = rate - percent_rate;
+				rate_high = rate + percent_rate;
 
 				prime_speed = speed;
-				System.out.println();
+				// System.out.println();
 			 } else if ( test_started && elapsed_time >= test_initial ) {
 
 			 	if ( rate_low < rate && rate < rate_high ) {
@@ -177,10 +177,11 @@ class App {
 					test_duration = (long)(1 + Math.ceil( (speed * ms) ));
 					test_initial = elapsed_time + ( test_duration * ns );
 
-					percent_speed = rate * percent_variation;
+					percent_rate = rate * percent_variation;
 
-					rate_low = rate - percent_speed;
-					rate_high = rate + percent_speed;
+					rate_low = rate - percent_rate;
+					rate_high = rate + percent_rate;
+
 					tests++;
 			 	}
 
@@ -203,11 +204,12 @@ class App {
 		System.out.println();
 		System.out.println();
 				
-		System.out.println( "  Elapsed time: " + inf.format((end - start) / ns) + " seconds or ~" + df.format((end - start) / ms / 1000.0 / 60.0) + " minutes.");
-		System.out.println( "  Games completed: " + inf.format( getCompleted(wgts) ) + "." );
-		System.out.println( "  Tests completed: " + inf.format( tests ) + "." );
-		System.out.println( "  Threads used: " + threads + ".");
-		System.out.println( "  Confidence: " + pf.format( percent_variation ) + "." );
+		System.out.println( "  Elapsed time: \n\t" + 
+			inf.format((end - start) / ns) + " seconds or \n\t~" + df.format((end - start) / ms / 1000.0 / 60.0) + " minutes");
+		System.out.println( "  Games completed: \t" + inf.format( getCompleted(wgts) ) + " " );
+		System.out.println( "  Tests completed: \t" + inf.format( tests ) + " " );
+		System.out.println( "  Threads used: \t" + threads + " ");
+		System.out.println( "  Confidence range: \t" + pf.format( percent_variation ) + " " );
 
 
 		System.out.println();
