@@ -195,7 +195,7 @@ class App {
 			 	
 				print_last = current_time;
 
-			 	Thread.sleep(500);
+			 	//Thread.sleep(500);
 			 }
 
 		}
@@ -223,7 +223,7 @@ class App {
 		System.out.println( "  Final rate: \t" + df.format( (rate / ms) ) + " (ms/g)" );
 		System.out.println( "  Final speed: \t" + df.format( (speed * ms) ) + " (g/ms)" );
 		System.out.println();
-		System.out.println( "  Final speed: \t" + inf.format( (speed * ms) * 1000) + " (g/s)" );
+		System.out.println( "  Final score: \t" + inf.format( Math.round((speed * ms)) ) + " " );
 		
 		System.out.println();
 	}
