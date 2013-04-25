@@ -72,6 +72,7 @@ class App {
 	
 	public static void print_results(Benchmark benchmark) {
 		System.out.println();
+		System.out.println();
 		System.out.println( " Results:");
 		System.out.println();
 				
