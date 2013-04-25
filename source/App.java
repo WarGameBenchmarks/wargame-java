@@ -3,36 +3,6 @@ import java.util.*;
 
 class App {
 
-	public static boolean isAlive(WarGameThread[] threads) {
-		boolean life = false;
-		for (WarGameThread t : threads) {
-			if (t.isAlive()) {
-				life = true;
-				break;
-			}
-		}
-		return life;
-	}
-
-	public static int getCompleted(WarGameThread[] threads) {
-		int processed = 0;
-		for (WarGameThread t : threads ) {
-			processed = processed + t.processed;
-		}
-
-		return processed;
-	}
-	
-	public static void terminateThreads(WarGameThread[] threads) {
-		for (WarGameThread t: threads) {
-			t.terminate();
-		}
-	}
-
-	public static long getTime() {
-		return System.nanoTime();
-	}
-
 	public static void print_help() {
 			System.out.println( "  --- Help");
 			System.out.println( "  ---  java App: runs with default settings");
@@ -118,91 +88,10 @@ class App {
 		System.out.println( "  Using " + inf.format(prime_time / ns) + " seconds for prime time." );
 		System.out.println();
 				
-		WarGameThread[] wgts = new WarGameThread[ threads ];
 
+		BenchmarkSettings settings = new BenchmarkSettings(threads, percent_variation, prime_time);
+		Benchmark benchmark = new Benchmark(settings);
 
-		String display_tail = "";
-		long print_last = getTime();
-
-		int tests = 1;
-		double completed = 0;
-		double speed = 0;
-		double rate = 0;
-		double rate_low = 0, rate_high = 0, prime_speed = 0;
-		double percent_rate = 0;
-
-		boolean test_started = false;
-
-		long elapsed_time = 0;
-		long current_time = 0;
-		long test_initial = 0;
-		long test_duration = 0;
-
-		long start = getTime();
-
-		for (int i = 0; i < threads; i++) {
-			wgts[i] = new WarGameThread();
-		}
-
-		while ( isAlive(wgts) ) {
-			
-			 completed = getCompleted(wgts);
-			 current_time = getTime();
-			 elapsed_time = current_time - start;
-
-			 rate = (elapsed_time / completed);
-			 speed = 1 / rate;
-
-			 if ( !test_started && elapsed_time >= prime_time ) {
-				test_started = true;
-				
-				test_duration = (long)(1 + Math.ceil( (speed * ms) ));
-				test_initial = elapsed_time + ( test_duration * ns );
-
-				percent_rate = rate * percent_variation;
-
-				rate_low = rate - percent_rate;
-				rate_high = rate + percent_rate;
-
-				prime_speed = speed;
-				// System.out.println();
-			 } else if ( test_started && elapsed_time >= test_initial ) {
-
-			 	if ( rate_low < rate && rate < rate_high ) {
-			 		terminateThreads(wgts);
-			 	} else if ( tests >= 100 ) {
-			 		terminateThreads(wgts);
-			 	} else {
-
-					test_duration = (long)(1 + Math.ceil( (speed * ms) ));
-					test_initial = elapsed_time + ( test_duration * ns );
-
-					percent_rate = rate * percent_variation;
-
-					rate_low = rate - percent_rate;
-					rate_high = rate + percent_rate;
-
-					tests++;
-			 	}
-
-			 }			 
-
-			 if ( ( current_time - print_last ) > (1000 * ms) ) {
-
-			 	if ( test_started ) display_tail = "Test #" + tests + " at " + inf.format( (test_initial - elapsed_time) / ns  ) + " seconds";
-			 	else display_tail = inf.format( (prime_time - elapsed_time) / ns ) + " seconds left";
-
-			 	
-			 	System.out.print("\r " + " Speed: " + df.format( (speed * ms) ) + " (g/ms) - " + display_tail );
-			 	
-				print_last = current_time;
-
-			 	//Thread.sleep(500);
-			 }
-
-		}
-
-		long end = getTime();
 
 		System.out.print("\r " + " Speed: " + df.format( (speed * ms) ) + " (g/ms) - " + display_tail );
 

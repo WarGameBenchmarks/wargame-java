@@ -4,6 +4,12 @@ class BenchmarkSettings {
 	private double percent_variation;
 	private long prime_time;
 
+	BenchmarkSettings(int at, double pv, long pt) {
+		this.available_threads = at;
+		this.percent_variation = pv;
+		this.prime_time = pt;
+	}
+
 }
 
 class Benchmark {
@@ -42,8 +48,6 @@ class Benchmark {
 		return System.nanoTime();
 	}
 
-
-
 	public Benchmark(BenchmarkSettings settings) {
 
 		this.settings = settings;
@@ -52,15 +56,19 @@ class Benchmark {
 
 	public void start() {
 
-		for (int i = 0; i < this.settings.available_threads; i++) {
-			this.threads = new WarGameThread();
-		}
+		this.run();
 
 		this.start_time = getTime();
 		WarGameThread.launch(this.threads);
 		this.test();
 		this.end_time = getTime();
 
+	}
+
+	private void run() {
+		for (int i = 0; i < this.settings.available_threads; i++) {
+			this.threads = new WarGameThread();
+		}
 	}
 
 	private void test() {
@@ -74,7 +82,7 @@ class Benchmark {
 			rate = elapsed_time / completed;
 			speed = 1 / rate;
 
-			if ( !test_started && elapsed_time >= prime_time ) {
+			if ( !test_started && elapsed_time >= settings.prime_time ) {
 				test_started = true;
 				next();
 				prime_speed = speed;
@@ -92,6 +100,7 @@ class Benchmark {
 			if ( (current-time) > (1000 * ms) ) {
 
 				print_last = current_time;
+				
 			}
 
 		}
@@ -102,7 +111,7 @@ class Benchmark {
 		test_duration = (long)(1 + Math.ceil( (speed * ms) ));
 		test_initial = elapsed_time + ( test_duration * ns );
 
-		percent_rate = rate * percent_variation;
+		percent_rate = rate * settings.percent_variation;
 
 		rate_low = rate - percent_rate;
 		rate_high = rate + percent_rate;
