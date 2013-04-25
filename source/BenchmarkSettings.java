@@ -3,7 +3,7 @@ class BenchmarkSettings {
 
 	private int available_threads = 1;
 	
-	private int variation_magnitude = 4;
+	private int variation_magnitude = -4;
 	
 	private int prime_time = 60;
 	

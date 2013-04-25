@@ -1,5 +1,4 @@
 import java.text.*;
-import java.util.*;
 
 class App {
 
@@ -9,42 +8,37 @@ class App {
 	public static final NumberFormat df = NumberFormat.getInstance();
 	public static final NumberFormat inf = NumberFormat.getIntegerInstance();
 	
-	public static void print_help() {
-			System.out.println( "  --- Help");
-			System.out.println( "  ---  java App: runs with default settings");
-			System.out.println( "  ---  java App s: runs a short test");
-			System.out.println( "  ---  java App i: allows user to choose settings");
-			System.out.println( "  ---  java App help: displays this information");
-			System.out.println( "    --  threads: defaults to the number of logical processors available");
-			System.out.println( "    --  variation magnitude: defaults to 4 e.g. 10^-4 or .0001, results will be +/- .01%");
-			System.out.println( "    --  prime time: the period to wait before beginning testing");
-			System.out.println( "    --  maximum tests: the maximum number of tests allowed per run");
-			System.out.println( "    --  update frequency: the number of times per second values update");
-			System.out.println( "  ---  Visit http://ifupdown.com/wg for more information...");
-			System.out.println();
-			System.out.println();
+	public static void main(String[] args) {
+		
+		print_header();
+
+		pf.setMaximumFractionDigits(2);
+		df.setMaximumFractionDigits(4);
+		df.setMinimumFractionDigits(4);
+		
+		BenchmarkSettings settings = handleArguments(args);
+		
+		print_settings(settings);
+		
+		Benchmark benchmark = new Benchmark(settings);
+		BenchmarkPrinter printer = new BenchmarkPrinter(benchmark) {
+			public void print() {
+				String display_tail;
+			 	if ( this.getBenchmark().isTest_started() ) display_tail = "Test #" + this.getBenchmark().getTests() + " at " + inf.format( (this.getBenchmark().getTest_time() - this.getBenchmark().getElapsed_time()) / ns  ) + " seconds";
+			 	else display_tail = inf.format( (this.getBenchmark().getPrime_time() - this.getBenchmark().getElapsed_time()) / ns ) + " seconds left";
+
+			 	System.out.print("\r " + " Speed: " + df.format( (this.getBenchmark().getSpeed() * ms) ) + " (g/ms) - " + display_tail );
+			}
+		};
+		benchmark.attachPrinter(printer);
+		
+		benchmark.start();
+
+		print_results(benchmark);
+
 	}
 
-	public static void print_header() {
-		System.out.println();
-		System.out.println( "    =============================    " );
-		System.out.println( "    ====  WarGame 2 | V 1.1  ====    " );
-		System.out.println( "    =============================    " );
-		System.out.println();
-	}
-	
-	public static void print_settings(BenchmarkSettings settings) {
-		System.out.println();
-		System.out.println( " Settings:");
-		System.out.println( "  Number of threads: " + settings.getAvailable_threads() );
-		System.out.println( "  Variation magnitude: " + settings.getVariation_magnitude() + " [" + pf.format(Math.pow(10, settings.getVariation_magnitude())) + "] " );
-		System.out.println( "  Prime time: " + settings.getPrime_time() + " seconds " );
-		System.out.println( "  Maximum tests: " + settings.getMaximum_tests() + " " );
-		System.out.println( "  Update frequency: " + settings.getUpdate_frequency() + " fps " );
-		System.out.println();
-	}
-
-	public static BenchmarkSettings initialize(String[] args) {
+	public static BenchmarkSettings handleArguments(String[] args) {
 		boolean hasArguments = ( args.length > 0 );
 		
 		BenchmarkSettings settings = new BenchmarkSettings();
@@ -75,35 +69,10 @@ class App {
 	
 		
 	}
-
-	public static void main(String[] args) throws Exception {
-		
-		print_header();
-
-		pf.setMaximumFractionDigits(2);
-		df.setMaximumFractionDigits(4);
-		df.setMinimumFractionDigits(4);
-		
-		BenchmarkSettings settings = initialize(args);
-		
-		print_settings(settings);
-		
-		Benchmark benchmark = new Benchmark(settings);
-		BenchmarkPrinter printer = new BenchmarkPrinter(benchmark) {
-			public void print() {
-				String display_tail;
-			 	if ( this.getBenchmark().isTest_started() ) display_tail = "Test #" + this.getBenchmark().getTests() + " at " + inf.format( (this.getBenchmark().getTest_time() - this.getBenchmark().getElapsed_time()) / ns  ) + " seconds";
-			 	else display_tail = inf.format( (this.getBenchmark().getPrime_time() - this.getBenchmark().getElapsed_time()) / ns ) + " seconds left";
-
-			 	System.out.print("\r " + " Speed: " + df.format( (this.getBenchmark().getSpeed() * ms) ) + " (g/ms) - " + display_tail );
-			}
-		};
-		benchmark.attachPrinter(printer);
-		
-		benchmark.start();
-		
-
+	
+	public static void print_results(Benchmark benchmark) {
 		System.out.println();
+		System.out.println( " Results:");
 		System.out.println();
 				
 		System.out.println( "  Elapsed time: \n\t" +  inf.format((benchmark.getEnd_time() - benchmark.getStart_time()) / ns) + " seconds \n\t~" + df.format((benchmark.getEnd_time() - benchmark.getStart_time()) / ms / 1000.0 / 60.0) + " minutes");
@@ -123,6 +92,41 @@ class App {
 		System.out.println();
 		System.out.println( "  Final score: \t" + inf.format( Math.round((benchmark.getSpeed() * ms)) ) + " " );
 		
+		System.out.println();
+	}
+	
+	public static void print_help() {
+		System.out.println( "  --- Help");
+		System.out.println( "  ---  java App: runs with default settings");
+		System.out.println( "  ---  java App s: runs a short test");
+		System.out.println( "  ---  java App i: allows user to choose settings");
+		System.out.println( "  ---  java App help: displays this information");
+		System.out.println( "    --  threads: defaults to the number of logical processors available");
+		System.out.println( "    --  variation magnitude: defaults to 4 e.g. 10^-4 or .0001, results will be +/- .01%");
+		System.out.println( "    --  prime time: the period to wait before beginning testing");
+		System.out.println( "    --  maximum tests: the maximum number of tests allowed per run");
+		System.out.println( "    --  update frequency: the number of times per second values update");
+		System.out.println( "  ---  Visit http://ifupdown.com/wg for more information...");
+		System.out.println();
+		System.out.println();
+}
+
+	public static void print_header() {
+		System.out.println();
+		System.out.println( "    =============================    " );
+		System.out.println( "    ====  WarGame 2 | V 1.1  ====    " );
+		System.out.println( "    =============================    " );
+		System.out.println();
+	}
+
+	public static void print_settings(BenchmarkSettings settings) {
+		System.out.println();
+		System.out.println( " Settings:");
+		System.out.println( "  Number of threads: " + settings.getAvailable_threads() );
+		System.out.println( "  Variation magnitude: " + settings.getVariation_magnitude() + " [" + pf.format(Math.pow(10, settings.getVariation_magnitude())) + "] " );
+		System.out.println( "  Prime time: " + settings.getPrime_time() + " seconds " );
+		System.out.println( "  Maximum tests: " + settings.getMaximum_tests() + " " );
+		System.out.println( "  Update frequency: " + settings.getUpdate_frequency() + " fps " );
 		System.out.println();
 	}
 
