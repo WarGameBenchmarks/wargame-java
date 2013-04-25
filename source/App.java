@@ -1,58 +1,14 @@
 import java.text.*;
 import java.util.*;
 
-class SettingsSelector {
-	
-	private Scanner scanner = new Scanner(System.in);
-	private BenchmarkBuilder settings;
-	
-	SettingsSelector(BenchmarkBuilder bb) {
-		this.settings = bb;
-	}
-	
-	public void getThreads() {
-		int temp = 0;
-		System.out.print( "  -- Enter number of threads\n   (enter 0 for " + this.settings.getAvailable_threads() + " threads): " );
-		temp = scanner.nextInt();
-		if ( 0 != temp ) {
-			this.settings.available_threads(temp);
-		}
-	}
-	
-	public void getPercentVariation() {
-		int temp = 0;
-		System.out.print( "  -- Enter confidence threshold [10^-n]\n   (enter 0 for " + this.settings.getVariation_magnitude() + "): " );
-		temp = scanner.nextInt();
-		if ( 0 != temp ) {
-			this.settings.variation_magnitude(temp);
-		}
-	}
-	
-	public double computePercentVariation() {
-		return (double)(Math.pow(10, -1 * this.settings.getVariation_magnitude()));
-	}
-
-	
-	public void getPrimeTime() {
-		int temp = 0;
-		System.out.print( "  -- Enter priming time\n   (enter 0 for " + this.settings.getPrime_time() + " seconds): " );
-		temp = scanner.nextInt();
-		if ( 0 != temp ) {
-			this.settings.prime_time(temp);
-		}
-	}
-	
-	public long computePrimeTime(int time) {
-		return Benchmark.NS * (long)time;
-	}
-	
-	
-	
-	
-}
-
 class App {
 
+	public static final long ms = Benchmark.MS;
+	public static final long ns = Benchmark.NS;
+	public static final NumberFormat pf = NumberFormat.getPercentInstance();
+	public static final NumberFormat df = NumberFormat.getInstance();
+	public static final NumberFormat inf = NumberFormat.getIntegerInstance();
+	
 	public static void print_help() {
 			System.out.println( "  --- Help");
 			System.out.println( "  ---  java App: runs with default settings");
@@ -60,8 +16,10 @@ class App {
 			System.out.println( "  ---  java App i: allows user to choose settings");
 			System.out.println( "  ---  java App help: displays this information");
 			System.out.println( "    --  threads: defaults to the number of logical processors available");
-			System.out.println( "    --  confidence threshold: defaults to 00.01%, results will be +/- .01%");
+			System.out.println( "    --  variation magnitude: defaults to 4 e.g. 10^-4 or .0001, results will be +/- .01%");
 			System.out.println( "    --  prime time: the period to wait before beginning testing");
+			System.out.println( "    --  maximum tests: the maximum number of tests allowed per run");
+			System.out.println( "    --  update frequency: the number of times per second values update");
 			System.out.println( "  ---  Visit http://ifupdown.com/wg for more information...");
 			System.out.println();
 			System.out.println();
@@ -74,30 +32,47 @@ class App {
 		System.out.println( "    =============================    " );
 		System.out.println();
 	}
+	
+	public static void print_settings(BenchmarkSettings settings) {
+		System.out.println();
+		System.out.println( " Settings:");
+		System.out.println( "  Number of threads: " + settings.getAvailable_threads() );
+		System.out.println( "  Variation magnitude: " + settings.getVariation_magnitude() + " [" + pf.format(Math.pow(10, settings.getVariation_magnitude())) + "] " );
+		System.out.println( "  Prime time: " + settings.getPrime_time() + " seconds " );
+		System.out.println( "  Maximum tests: " + settings.getMaximum_tests() + " " );
+		System.out.println( "  Update frequency: " + settings.getUpdate_frequency() + " fps " );
+		System.out.println();
+	}
 
-	public static void initialize(String[] args) {
+	public static BenchmarkSettings initialize(String[] args) {
 		boolean hasArguments = ( args.length > 0 );
 		
+		BenchmarkSettings settings = new BenchmarkSettings();
 		
 		
-		if ( args.length > 0 && args[0].equals("i") ) {
+		if ( hasArguments && args[0].equals("i") ) {
+			System.out.println( " --- Interactive Mode" );
 
-
-		} else if ( args.length > 0 && args[0].equals("s") ) {
+			SettingsSelector ss = new SettingsSelector(settings);
+			
+			ss.getThreads();
+			ss.getPrimeTime();
+			ss.getVariationMagnitude();
+			ss.getMaximumTests();
+			ss.getUpdateFrequency();
+			
+		} else if ( hasArguments && args[0].equals("s") ) {
 			System.out.println( " --- Short Run Mode" );
-			percent_variation = (double)(Math.pow(10, -1 * 2));
-			prime_time = ns * (long)10;
+			
+			settings.variation_magnitude(2).prime_time(10).update_frequency(30);
 
-		} else if ( args.length > 0 && (args[0].equals("h") || args[0].equals("help")) ) {
+		} else if ( hasArguments && (args[0].equals("h") || args[0].equals("help")) ) {
 			print_help();
 			System.exit(1);
 		}
-		
-		
-		
-		
-		
-		
+	
+		return settings;
+	
 		
 	}
 
@@ -105,39 +80,20 @@ class App {
 		
 		print_header();
 
-		final NumberFormat pf = NumberFormat.getPercentInstance();
-		final NumberFormat df = NumberFormat.getInstance();
-		final NumberFormat inf = NumberFormat.getIntegerInstance();
-
 		pf.setMaximumFractionDigits(2);
 		df.setMaximumFractionDigits(4);
 		df.setMinimumFractionDigits(4);
-
-
-		final long ms = 1000000L;
-		final long ns = 1000000000L;
-
-
-		int threads = Runtime.getRuntime().availableProcessors();
-		double percent_variation = 0.0001;
-		long prime_time = 60 * ns;
-
-
-
-		System.out.println();
-		System.out.println( "  Using " + threads + " for number of threads." );
-		System.out.println( "  Using " + Math.abs(Math.log10(percent_variation)) + " [" + pf.format(percent_variation) + "] for confidence threshold." );
-		System.out.println( "  Using " + inf.format(prime_time / ns) + " seconds for prime time." );
-		System.out.println();
-				
 		
-		BenchmarkBuilder settings = new BenchmarkBuilder(threads, percent_variation, prime_time);
+		BenchmarkSettings settings = initialize(args);
+		
+		print_settings(settings);
+		
 		Benchmark benchmark = new Benchmark(settings);
 		BenchmarkPrinter printer = new BenchmarkPrinter(benchmark) {
 			public void print() {
 				String display_tail;
 			 	if ( this.getBenchmark().isTest_started() ) display_tail = "Test #" + this.getBenchmark().getTests() + " at " + inf.format( (this.getBenchmark().getTest_time() - this.getBenchmark().getElapsed_time()) / ns  ) + " seconds";
-			 	else display_tail = inf.format( (this.getBenchmark().getSettings().getPrime_time() - this.getBenchmark().getElapsed_time()) / ns ) + " seconds left";
+			 	else display_tail = inf.format( (this.getBenchmark().getPrime_time() - this.getBenchmark().getElapsed_time()) / ns ) + " seconds left";
 
 			 	System.out.print("\r " + " Speed: " + df.format( (this.getBenchmark().getSpeed() * ms) ) + " (g/ms) - " + display_tail );
 			}

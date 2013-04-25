@@ -1,16 +1,3 @@
-class BenchmarkPrinter {
-	private Benchmark benchmark;
-	BenchmarkPrinter(Benchmark b) {
-		this.benchmark = b;
-	}
-	public void print() {
-		
-	}
-	public Benchmark getBenchmark() {
-		return benchmark;
-	}
-}
-
 class Benchmark {
 
 	public static final long MS = 1000000L;
@@ -22,6 +9,9 @@ class Benchmark {
 
 	private boolean test_started = false;
 
+	private int
+			maximum_tests;
+	
 	private long
 			elapsed_time,
 			current_time,
@@ -38,20 +28,27 @@ class Benchmark {
 			rate_low,
 			rate_high,
 			prime_speed,
-			percent_rate;
+			prime_time,
+			percent_rate,
+			percent_variation,
+			update_frequency;
 
 
-	private BenchmarkBuilder settings;
+	private BenchmarkSettings settings;
 	private BenchmarkPrinter printer;
 
 	public static long getTime() {
 		return System.nanoTime();
 	}
 
-	public Benchmark(BenchmarkBuilder settings) {
+	public Benchmark(BenchmarkSettings settings) {
 
 		this.settings = settings;
 		this.threads = new WarGameThread[this.settings.getAvailable_threads()];
+		this.percent_variation = Math.pow(10, this.settings.getVariation_magnitude());
+		this.maximum_tests = this.settings.getMaximum_tests();
+		this.prime_time = (long)this.settings.getPrime_time() * NS;
+		this.update_frequency = (double)1000 / (double)this.settings.getUpdate_frequency();
 
 	}
 
@@ -88,13 +85,13 @@ class Benchmark {
 			rate = elapsed_time / completed;
 			speed = 1 / rate;
 
-			if ( !test_started && elapsed_time >= settings.getPrime_time() ) {
+			if ( !test_started && elapsed_time >= prime_time ) {
 				test_started = true;
 				next();
 				prime_speed = speed;
 			} else if ( test_started && elapsed_time >= test_time ) {
 
-				if (rate_low < rate && rate < rate_high || tests >= 0) {
+				if (rate_low < rate && rate < rate_high || tests >= maximum_tests) {
 					WarGameThread.terminateThreads(threads);
 				} else {
 					next();
@@ -103,7 +100,7 @@ class Benchmark {
 
 			}
 
-			if ( ( current_time - last_print ) > (1000 * MS) ) {
+			if ( ( current_time - last_print ) > (update_frequency * MS) ) {
 
 				this.printer.print();
 				last_print = current_time;
@@ -118,7 +115,7 @@ class Benchmark {
 		test_duration = (long)(1 + Math.ceil( (speed * MS) ));
 		test_time = elapsed_time + ( test_duration * NS );
 
-		percent_rate = rate * settings.getPercent_variation();
+		percent_rate = rate * percent_variation;
 
 		rate_low = rate - percent_rate;
 		rate_high = rate + percent_rate;
@@ -192,8 +189,28 @@ class Benchmark {
 		return percent_rate;
 	}
 
-	public BenchmarkBuilder getSettings() {
+	public BenchmarkSettings getSettings() {
 		return settings;
+	}
+
+	public double getPrime_time() {
+		return prime_time;
+	}
+
+	public int getMaximum_tests() {
+		return maximum_tests;
+	}
+
+	public double getPercent_variation() {
+		return percent_variation;
+	}
+
+	public double getUpdate_frequency() {
+		return update_frequency;
+	}
+
+	public BenchmarkPrinter getPrinter() {
+		return printer;
 	}
 
 

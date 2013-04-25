@@ -1,9 +1,8 @@
 
-class BenchmarkBuilder {
+class BenchmarkSettings {
 
 	private int available_threads = 1;
 	
-	private double percent_variation = .0001;
 	private int variation_magnitude = 4;
 	
 	private int prime_time = 60;
@@ -12,46 +11,39 @@ class BenchmarkBuilder {
 	
 	private int update_frequency = 1;
 
-	BenchmarkBuilder() {
+	BenchmarkSettings() {
 		this.available_threads = Runtime.getRuntime().availableProcessors();
 	}
 	
-	public BenchmarkBuilder available_threads(int at) {
-		if (Runtime.getRuntime().availableProcessors() < at) this.available_threads = Runtime.getRuntime().availableProcessors();
+	public BenchmarkSettings available_threads(int at) {
+		if (0 == at) this.available_threads = Runtime.getRuntime().availableProcessors();
 		else this.available_threads = at;
 		return this;
 	}
 
-	public BenchmarkBuilder variation_magnitude(int x) {
-		this.variation_magnitude = x;
+	public BenchmarkSettings variation_magnitude(int x) {
+		this.variation_magnitude = -1 * Math.abs(x);
 		return this;
 	}
 
-	public BenchmarkBuilder prime_time(int x) {
-		this.prime_time = x;
+	public BenchmarkSettings prime_time(int x) {
+		this.prime_time = Math.abs(x);
 		return this;
 	}
 	
-	public BenchmarkBuilder maximum_tests(int x) {
-		this.maximum_tests = x;
+	public BenchmarkSettings maximum_tests(int x) {
+		this.maximum_tests = ( x < 10 ? 10 : x );
 		return this;
 	}
 	
-	public BenchmarkBuilder update_frequency(int x) {
-		this.update_frequency = x;
+	public BenchmarkSettings update_frequency(int x) {
+		x = Math.abs(x);
+		this.update_frequency = ( x <= 1000 && x > 0 ? x : 1 );
 		return this;
-	}
-	
-	public Benchmark build() {
-		return new Benchmark(this);
 	}
 
 	public int getAvailable_threads() {
 		return available_threads;
-	}
-
-	public double getPercent_variation() {
-		return percent_variation;
 	}
 
 	public int getPrime_time() {
