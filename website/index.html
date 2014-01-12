@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>WarGame 2</title>
+<title>WarGame 2.1</title>
 
 <style type="text/css">
 
@@ -106,84 +106,108 @@ td:first-child {
 </head>
 <body>
 
-<h1 class="site-title">WarGame 2</h1>
+<h1 class="site-title">WarGame 2.1</h1>
 
 <div class="container">
 
 	<h2 class="site-motto">Kinda-Sorta Basic Benchmarking in Java</h2>
 
 	<div class="download">
-		<p>Download the <a href="zips/wg2-1001.zip">WarGame 2 source and class files</a>.</p>
+		<p>Compiled Java 1.6 compliant <a href="">WarGame 2.1</a></p>
+		<p>Source code for <a href="">WarGame 2.1</a></p>
 	</div>
 
 	<div class="aside right">
 		<h3>Output</h3>
 		<blockquote>
 <pre>
-C:\Users\ryan\Desktop\quick\WG2>java App
-    =====================
-    ====  WarGame 2  ====
-    =====           =====
-    ====== Ver 1.0 ======
-    =====================
+ryans-mba:wargame ryanrampersad$ ./run.sh 
+
+    =============================    
+    =======  WarGame 2.1  =======    
+    =============================    
 
 
-  Using 8 for number of threads.
-  Using 4.0 [0.01%] for confidence threshold.
-  Using 60 seconds for prime time.
+ Settings:
+  Number of threads: 4
+  Variation magnitude: -4 [0.01%] 
+  Prime time: 60 seconds 
+  Maximum tests: 100 
+  Update frequency: 1 fps 
 
-Beginning priming phase...
+  Speed: 6.0738 (g/ms) - Test #19 at 0 seconds
 
-  Speed: 0.0385 (ms/g) - 0 seconds left....
-  Speed: 0.0384 (ms/g) Test #4 at 0 seconds
+ Results:
 
-  Elasped time: 171 seconds or about 2.8509 minutes
-  Games completed: 4,456,076
-  Tests completed: 4
-  Threads used: 8
-  Confidence: 0.01%
+  Elapsed time: 
+	212 seconds 
+	~3.5338 minutes
+  Games completed: 	1,287,878 
+  Tests completed: 	19 
 
-  4 tests improved speed by 0.4172%
-   from 0.0385 (ms/g) to 0.0384 (ms/g)
+  Speed improvement: -6.06%
+   from 6.4425 (g/ms) to 6.0741 (g/ms)
   Final confidence range:
-   0.0384 (ms/g) &lt; 0.0384 (ms/g) &lt; 0.0384 (ms/g)
+   6.0751 (g/ms) > 6.0741 (g/ms) > 6.0739 (g/ms)
 
-  Final speed: 0.0384 ms/g
-  Final speed: 26.0504 g/ms
+  Final rate: 	0.1646 (ms/g)
+  Final speed: 	6.0741 (g/ms)
+
+  Final score: 	6 
 </pre>
 		</blockquote>
 	</div>
 
-	<p>To run the WarGame:</p>
+	<p>To run the WarGame on not-Windows:</p>
 	<blockquote class="howto">
-			java App
+			./run.sh
 	</blockquote>
+	
+	<p>To run the WarGame on Windows:</p>
+	<blockquote class="howto">
+			run.bat
+	</blockquote>	
 
 	This will run like so:
 	<ol>
 		<li>Priming phase: 60 seconds of games running in attempt to mitigate overhead of setup and to reach a stable speed</li>
-		<li>Testing phase: Determine if the speed is within a <em>+/-</em>00.01% range, check in <em>(1/speed)</em> seconds</li>
+		
+		<li>Testing phase: Determine if the speed is within a <em>+/-</em>00.01% range, check in <em>speed</em> seconds</li>
+		
 		<li>Retesting phase: if the speed is <em>not</em> within the range, test again in (1/speed) seconds</li>
+		
 		<li>Results phase: display the results</li>
 	</ol>
 
 	<p>The WarGame program has three primary <em>settings</em>:</p>
 	<ul>
 		<li><em>Threads</em>: by default, the number of <a href="https://www.google.com/search?q=logical+cores">logical cores</a> available</li>
-		<li><em>Confidence</em>: the change allowed during the testing phase, as a percentage. By default, <em>00.01%</em>.
+		
+		<li><em>Variation magnitude</em>: the change allowed during the testing phase, as a percentage. By default, <em>00.01%</em>.
 			<p>For example, if the speed at the beginning of the testing phase is <em>.2345</em>, then the confidence range would be <br />
 				0.23447655 &lt; <em>.2345</em> &lt; 0.23452345
 			</p>
 		</li>
+		
 		<li><em>Prime time</em>: by default, 60 seconds
 			<p>Prime time allows the program to reach a period of stability before testing begins.
-
 			</p>
 		</li>
+		
+		<li><em>Maximum tests</em>: by default, 100 tests
+		</li>
+		
+		<li><em>Update frequency</em>: by default, 30 fps
+			<p>
+				Set the number of screen updates per second on progress.
+			</p>
+		</li>
+		
 	</ul>
 
 	<h3>Release History</h3>
 	<ul>
+		<li>2.1: Saturday, January 11th, 2014 &ndash; initial release</li>
 		<li>1.0.0.1: Thursday, January 17th, 2012 &ndash; initial release</li>
 	</ul>
 
@@ -204,6 +228,13 @@ Beginning priming phase...
 
 	<p>The <em>Help</em> mode is self-explanatory, this page provides the same contents and more.</p>
 
+	<h3>Updates</h3>
+	<div class="story">
+		
+		<p>The 2.1 update will round to a specific number, which is exactly <em>speed</em>, or <em>1/rate</em>. Because this is a <em>kinda-sorta</em> bench mark, this is fine. While the whole number is shown, the raw numbers are still given as well.</p>
+		
+	</div>
+
 	<h3>Backstory</h3>
 	<div class="story">
 		<p>When I was in tenth grade, I spent a week or so coding the original WarGame &mdash; a simulator for playing war. The sim was fine, but my favorite past time was running it on various computers with a <em>million games</em> to see how long it would end up taking. In 2012, I built a new computer with an incredibly fast processor and I needed something better to test it than my original WarGame. The original WarGame tested to a user specified value (usually one million in my case) and it only used a single thread.</p>
@@ -219,6 +250,7 @@ Beginning priming phase...
 	<p>These results are from my own tests (as of WG2-1.0.0.1) on a few computers I have access to and results from others. To submit you results, you must email them to me.</p>
 
 
+	<h4>1.0.0.1 results</h3>
 	<div class="results-data google-spreadsheet data-presentation">
 		<iframe frameborder="0" src="https://docs.google.com/spreadsheet/lv?key=0ArwZztfeMFljdHhkLUVKeEJTOXJHcUdibzJmczFEWmc&rm=full#gid=0"></iframe>
 	</div>
