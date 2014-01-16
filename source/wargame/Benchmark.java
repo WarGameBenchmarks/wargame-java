@@ -57,6 +57,10 @@ class Benchmark {
 	public void attachPrinter(BenchmarkPrinter p) {
 		this.printer = p;
 	}
+
+	public void end() {
+		WarGameThread.terminateThreads(threads);
+	}
 	
 	public void start() {
 
@@ -94,7 +98,7 @@ class Benchmark {
 			} else if ( test_started && elapsed_time >= test_time ) {
 
 				if (rate_low < rate && rate < rate_high || tests >= maximum_tests) {
-					WarGameThread.terminateThreads(threads);
+					this.end();
 				} else {
 					next();
 					tests++;

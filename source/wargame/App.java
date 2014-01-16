@@ -10,6 +10,8 @@ class App {
 	public static final NumberFormat df = NumberFormat.getInstance();
 	public static final NumberFormat inf = NumberFormat.getIntegerInstance();
 	
+	private static boolean interrupt = false;
+
 	public static void main(String[] args) {
 		
 		print_header();
@@ -18,11 +20,13 @@ class App {
 		df.setMaximumFractionDigits(4);
 		df.setMinimumFractionDigits(4);
 		
+
+
 		BenchmarkSettings settings = handleArguments(args);
 		
 		print_settings(settings);
 		
-		Benchmark benchmark = new Benchmark(settings);
+		final Benchmark benchmark = new Benchmark(settings);
 		BenchmarkPrinter printer = new BenchmarkPrinter(benchmark) {
 			public void print() {
 				String display_tail;
@@ -34,7 +38,23 @@ class App {
 		};
 		benchmark.attachPrinter(printer);
 		
+		Thread shutdown = new Thread() {
+
+			public void run() {
+				benchmark.end();
+				System.out.println("\n\n\t--- Interrupt ---\n");
+				interrupt = true;	
+			}
+
+		};
+
+		Runtime.getRuntime().addShutdownHook(shutdown);
+
 		benchmark.start();
+
+		if ( interrupt == false ) {
+			Runtime.getRuntime().removeShutdownHook(shutdown);
+		}
 
 		print_results(benchmark);
 
@@ -60,7 +80,7 @@ class App {
 		} else if ( hasArguments && args[0].equals("s") ) {
 			System.out.println( " --- Short Run Mode" );
 			
-			settings.variation_magnitude(2).prime_time(10).update_frequency(30);
+			settings.variation_magnitude(2).prime_time(10).update_frequency(30).maximum_tests(10);
 
 		} else if ( hasArguments && (args[0].equals("h") || args[0].equals("help")) ) {
 			print_help();
@@ -73,7 +93,6 @@ class App {
 	}
 	
 	public static void print_results(Benchmark benchmark) {
-		System.out.println();
 		System.out.println();
 		System.out.println( " Results:");
 		System.out.println();
@@ -95,6 +114,11 @@ class App {
 		System.out.println();
 		System.out.println( "  Final score: \t" + inf.format( Math.round((benchmark.getSpeed() * ms)) ) + " " );
 		
+		if ( interrupt == false ) {
+			System.out.println();
+			System.out.println("  Submit results: \n\thttp://ifupdown.com/wg/results.php?fsc=" + inf.format( Math.round((benchmark.getSpeed() * ms)) ) + "&fsp=" + df.format( (benchmark.getSpeed() * ms) ) + "&tds=" + benchmark.getSettings().getAvailable_threads() + "&elt=" + inf.format((benchmark.getEnd_time() - benchmark.getStart_time()) / ns) + "&gcd=" + WarGameThread.getCompleted(benchmark.getThreads()));
+		}
+
 		System.out.println();
 	}
 	
