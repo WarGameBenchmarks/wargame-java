@@ -7,7 +7,7 @@
 <style type="text/css">
 
 body {
-	font-size: 1.4em;
+	font-size: 1.3em;
 	font-family: sans-serif;
 	color: #111;
 	margin: 0;
@@ -113,7 +113,7 @@ td:first-child {
 	<h2 class="site-motto">Kinda-Sorta Basic Benchmarking in Java</h2>
 
 	<div class="download">
-		<p>Download <a href="">WarGame 2.1</a></p>
+		<p>Download <a href="zips/wargame-2.1.zip">WarGame 2.1</a></p>
 	</div>
 
 	<div class="aside right">
@@ -165,6 +165,18 @@ ryans-mba:wargame ryanrampersad$ ./run.sh
 	<p>To run the WarGame on Windows:</p>
 	<blockquote class="howto">
 			run.bat
+	</blockquote>
+	
+	<hr />
+	
+	<p>To run the WarGame with options on not-Windows:</p>
+	<blockquote class="howto">
+		java -cp "bin" wargame/App
+	</blockquote>
+	
+	<p>To compile to WarGame on not-Windows:</p>
+	<blockquote class="howto">
+		javac -d "bin" -cp "source/wargame/" source/wargame/*.java
 	</blockquote>
 
 	This will run like so:
@@ -229,17 +241,25 @@ ryans-mba:wargame ryanrampersad$ ./run.sh
 
 	<h3>2.1 Update Notes</h3>
 		
-	<p>The 2.1 update will round to a specific number, which is exactly <em>speed</em>, or <em>1/rate</em>. Because this is a <em>kinda-sorta</em> bench mark, this is fine. While the whole number is shown, the raw numbers are still given as well.</p>
+	<p>The 2.1 update will round to a specific number, which is based on <em>speed</em>, or <em>1/rate</em>. Because this is a <em>kinda-sorta</em> bench mark, this is fine. While the whole number is shown, the raw numbers are still given as well.</p>
 	
 	<p>For example, in the output log above, the computer has a <em>final speed</em> of 6.0741 (g/ms). The <em>final score</em> is simply <code>round(final speed)</code>, which is simply 6. If the final speed were above 6.5, it would have scored 7. It is that simple and very arbitrary, but the value is an easy number to compare to others.</p>
 	
 	<p>There are techincal updates as well:</p>
 	<ul>
 		<li>Printing: instead of printing as frequently as possible, the screen is only updated once per second with the default values</li>
-		<li>Code: the code has been rewritten quite substantially to make better use of a class architecture.</li>
+		<li>Code: the code has been rewritten quite substantially to make better use of a class architecture</li>
 		<li>Code: attempts at handling the ctrl+c case of escaping</li>
 		<li>Results: a URL is provided to pre-fill results into our Google Doc</li>
 	</ul>
+	
+
+	<h3>Process</h3>
+	<p>The WarGame was designed to scale well on different types of computers, assuming they could run Java in the first place. There are multiple aspects that control the scaling system.</p>
+
+	<p>The original WarGame was always set to 1 million games of war. While this was decent for <em>my</em> computer at the time, on a slow laptop, the program could take over twenty minutes. On a fast machine (like a 10 thousand dollar dual-Xeon server), the 1 million game process could be over in just forty seconds. To fix this, the war game will <em>run</em> until a condition is met, regardless of how long it takes to actually get there - it could be twenty minutes or it could be just under two minutes. The solution to this problem is the <strong>variation magnitude</strong>. This is the percentage change between one instant's speed and another instant's speed. If less <em>change</em> than the <strong>variation magnitude</strong>, then the program has found an equilibrium on the machine and it is probably safe to say that is as fast as it can go.</p>
+
+	<p>After the priming time, which allows the JVM to allocate as much memory as it can for this program, to get the processors up to full usage and to max out thermal conditions, the tests begin. The testing phase is simple - it compares the speed to the last test's speed within in the bounds of the <strong>variation magnitude</strong>. If the test is successful, that is, the speeds have a difference of less than the magnitude, then the program ends. Otherwise, the tests continue in this same way until it is successful. The testing period has a delay added to it so that fast computers that have a high head room can be accurately tested while slower computers can be completed faster.</p>
 	
 	<h3>Backstory</h3>
 	<div class="story">
@@ -247,21 +267,14 @@ ryans-mba:wargame ryanrampersad$ ./run.sh
 
 		<p>Thus, the WarGame 2 was made. The second generation WarGame is the same at its core -- the game of War simulating two people playing cards. But the advancements are in the details: multiple threads play simultaneously (or whatever is an approximate of that) and a testing method that scales based on hardware capabilities. Threading makes full use cores available while the scaling method used allows for some degree of precision and consistency between runs. A faster computer will run more games for longer to ensure that its speed isn't fooling anyone.</p>
 
-	</div>
-
-	<h3>Process</h3>
-
-
-	<p>The WarGame was designed to scale well on different types of computers, assuming they could run Java in the first place. There are multiple aspects that control the scaling system.</p>
-
-	<p>The original WarGame was always set to 1 million games of war. While this was decent for <em>my</em> computer at the time, on a slow laptop, the program could take over twenty minutes. On a fast machine (like a 10 thousand dollar dual-Xeon server), the 1 million game process could be over in just forty seconds. To fix this, the war game will <em>run</em> until a condition is met, regardless of how long it takes to actually get there - it could be twenty minutes or it could be just under two minutes. The solution to this problem is the <strong>variation magnitude</strong>. This is the percentage change between one instant's speed and another instant's speed. If less <em>change</em> than the <strong>variation magnitude</strong>, then the program has found an equilibrium on the machine and it is probably safe to say that is as fast as it can go.</p>
-
-	<p>After the priming time, which allows the JVM to allocate as much memory as it can for this program, to get the processors up to full usage and to max out thermal conditions, the tests begin. The testing phase is simple - it compares the speed to the last test's speed within in the bounds of the <strong>variation magnitude</strong>. If the test is successful, that is, the speeds have a difference of less than the magnitude, then the program ends. Otherwise, the tests continue in this same way until it is successful. The testing period has a delay added to it so that fast computers that have a high head room can be accurately tested while slower computers can be completed faster.</p>
+	</div>	
+	
+	<hr />
 	
 	<h3>WarGame 2.1 Results</h3>
 
 	<div class="results-data google-spreadsheet data-presentation">
-		<iframe frameborder='0' src='https://docs.google.com/spreadsheet/pub?key=0ArwZztfeMFljdFRFbElXYjBuaGl3VU8yOHpuQVhHekE&output=html&widget=true'></iframe>
+		<iframe frameborder="0" src="https://docs.google.com/spreadsheet/lv?key=0ArwZztfeMFljdFRFbElXYjBuaGl3VU8yOHpuQVhHekE&rm=full#gid=0"></iframe>
 	</div>
 	<p>Please run the WarGame 2.1 and use the link given to you to submit your data.</p>
 
@@ -279,5 +292,5 @@ ryans-mba:wargame ryanrampersad$ ./run.sh
 
 <div class="copyright">This code is free to you, <a href="http://opensource.org/licenses/MIT">MIT style</a>, just as long as you maybe <a href="http://twitter.com/ryanmr">tweet me</a> and put my name somewhere so aliens in four thousands years will know.</div>
 
-</body><!-- if you are reading this, you need to get a life, and seriously, you need to ping on the twitter @ryanmr -->
+</body><!-- if you are reading this, you are my biggest fan. say hi, @ryanmr -->
 </html>
