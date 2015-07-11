@@ -1,223 +1,174 @@
 package wargame;
 
+import java.util.*;
+
 class Benchmark {
 
-	public static final long MS = 1000000L;
+  public static final long MS = 1000000L;
 	public static final long NS = 1000000000L;
 
-	private WarGameThread[] threads;
+  private WarGameThread[] threads;
 
-	private long tests = 1;
+  private int tasks;
 
-	private boolean test_started = false;
+  public Benchmark(int tasks) {
 
-	private int
-			maximum_tests;
-	
-	private long
-			elapsed_time,
-			current_time,
-			test_time,
-			test_duration,
-			start_time,
-			end_time,
-			last_print;
+    this.tasks = tasks;
+    threads = new WarGameThread[tasks];
 
-	private double
-			completed,
-			speed,
-			rate,
-			rate_low,
-			rate_high,
-			prime_speed,
-			prime_time,
-			percent_rate,
-			percent_variation,
-			update_frequency;
+  }
+
+  public void benchmark() {
+
+    create();
+
+    start();
+
+    ArrayList<Double> samples =
+      new ArrayList<Double>(10000);
+
+    boolean test_started = false;
+
+    int
+      phase = 1,
+      tests = 0,
+      maximum_tests = 240;
+
+    long
+      completed = 0,
+      elasped_time = 0,
+      current_time = getTime(),
+      test_time = 0,
+      test_duration = 0,
+      start_time = getTime(),
+      end_time = 0,
+      last_display_time = 0,
+      last_sample_time = 0;
+
+    double
+      speed = 0,
+      speed_v = 0,
+      rate = 0,
+      prime_time = 60000000000l,
+      display_frequency = 50000000l,
+      sample_frequency = 5000000l,
+      mean = 0,
+      stdev = 0,
+      cov = 0;
 
 
-	private BenchmarkSettings settings;
-	private BenchmarkPrinter printer;
+    System.out.println(String.format("\n%d. prime time has started", phase));
 
-	public static long getTime() {
+    while (true) {
+      completed = WarGameThread.getCompleted(threads);
+
+      current_time = getTime();
+      elasped_time = current_time - start_time;
+
+      rate = elasped_time / completed;
+
+      speed = 1 / rate;
+      speed_v = speed * MS;
+
+      if (!test_started && elasped_time >= prime_time) {
+        test_started = true;
+        System.out.println(String.format("\n%d. prime time has ended", phase));
+        phase = 2;
+        System.out.println(String.format("\n%d. stability testing has started", phase));
+      } else if (test_started && elasped_time >= test_time) {
+
+        mean = get_mean(samples);
+        stdev = get_standard_deviation(samples, mean);
+        cov = get_coefficient_of_variation(mean, stdev);
+
+        // backprint(String.format("mean = %.5f; stdev = %.5f; cov = %.5f; N = %d; t = %d", mean, stdev, cov, samples.size(), tests));
+
+        if (cov <= 1.0 || tests >= maximum_tests) {
+          break;
+        } else {
+          test_duration = 1;
+          test_time = elasped_time + (test_duration * NS);
+        }
+        tests++;
+      }
+
+      if ((current_time - last_sample_time) > sample_frequency) {
+        last_sample_time = current_time;
+        samples.add(speed_v);
+      }
+
+      if ((current_time - last_display_time) > display_frequency) {
+        last_display_time = current_time;
+
+        if (phase == 1) {
+          backprint(
+            String.format("%d. et = %d; g = %d; s = %.5f g/ms;\t",
+            phase, (int)(elasped_time / NS), completed, speed_v
+          ));
+        } else {
+          backprint(
+            String.format("%d. et = %d; g = %d; s = %.5f g/ms; t = %d; v = %.5f%%\t",
+            phase, elasped_time / NS, completed, speed_v, tests, ((1.0/cov)*100)
+          ));
+        }
+
+      }
+
+    }
+
+    System.out.println(String.format("\n%d. stability testing has ended", phase));
+
+    phase = 3;
+
+    stop();
+    System.out.println(String.format("\n%d. %d tasks stopped", phase, tasks));
+
+
+    System.out.println("--- ended");
+
+  }
+
+  private void create() {
+    for (int i = 0; i < tasks; i++) {
+      threads[i] = new WarGameThread();
+    }
+  }
+
+  private void start() {
+    WarGameThread.launch(threads);
+  }
+
+  private void stop() {
+    WarGameThread.terminateThreads(threads);
+  }
+
+  public static long getTime() {
 		return System.nanoTime();
 	}
 
-	public Benchmark(BenchmarkSettings settings) {
+  private double get_mean(ArrayList<Double> samples) {
+    double total = 0;
+    for (Double d: samples) {
+      total += d;
+    }
+    return total / samples.size();
+  }
 
-		this.settings = settings;
-		this.threads = new WarGameThread[this.settings.getAvailable_threads()];
-		this.percent_variation = Math.pow(10, this.settings.getVariation_magnitude());
-		this.maximum_tests = this.settings.getMaximum_tests();
-		this.prime_time = (long)this.settings.getPrime_time() * NS;
-		this.update_frequency = (double)1000 / (double)this.settings.getUpdate_frequency();
+  private double get_standard_deviation(ArrayList<Double> samples, double mean) {
+    double total = 0;
+    for (Double d: samples) {
+      total += Math.pow((d - mean), 2);
+    }
+    return Math.sqrt(total / samples.size());
+  }
 
-	}
+  private double get_coefficient_of_variation(double mean, double stdev) {
+    return (stdev / mean) * 100;
+  }
 
-	public void attachPrinter(BenchmarkPrinter p) {
-		this.printer = p;
-	}
-
-	public void end() {
-		WarGameThread.terminateThreads(threads);
-	}
-	
-	public void start() {
-
-		this.run();
-
-		this.start_time = getTime();
-		WarGameThread.launch(this.threads);
-		this.test();
-		this.end_time = getTime();
-
-	}
-
-	private void run() {
-		for (int i = 0; i < this.settings.getAvailable_threads(); i++) {
-			this.threads[i] = new WarGameThread();
-		}
-	}
-
-	private void test() {
-
-		while ( WarGameThread.isAlive(this.threads) ) {
-
-			completed = WarGameThread.getCompleted(threads);
-			
-			current_time = getTime();
-			elapsed_time = current_time - start_time;
-
-			rate = elapsed_time / completed;
-			speed = 1 / rate;
-
-			if ( !test_started && elapsed_time >= prime_time ) {
-				test_started = true;
-				next();
-				prime_speed = speed;
-			} else if ( test_started && elapsed_time >= test_time ) {
-
-				if (rate_low < rate && rate < rate_high || tests >= maximum_tests) {
-					this.end();
-				} else {
-					next();
-					tests++;
-				}
-
-			}
-
-			if ( ( current_time - last_print ) > (update_frequency * MS) ) {
-
-				this.printer.print();
-				last_print = current_time;
-				
-			}
-
-		}
-
-	}
-
-	private void next() {
-		test_duration = (long)(1 + Math.ceil( (speed * MS) ));
-		test_time = elapsed_time + ( test_duration * NS );
-
-		percent_rate = rate * percent_variation;
-
-		rate_low = rate - percent_rate;
-		rate_high = rate + percent_rate;
-	}
-
-	public WarGameThread[] getThreads() {
-		return threads;
-	}
-
-	public long getTests() {
-		return tests;
-	}
-
-	public boolean isTest_started() {
-		return test_started;
-	}
-
-	public long getElapsed_time() {
-		return elapsed_time;
-	}
-
-	public long getCurrent_time() {
-		return current_time;
-	}
-
-	public long getTest_time() {
-		return test_time;
-	}
-
-	public long getTest_duration() {
-		return test_duration;
-	}
-
-	public long getStart_time() {
-		return start_time;
-	}
-
-	public long getEnd_time() {
-		return end_time;
-	}
-
-	public long getLast_print() {
-		return last_print;
-	}
-
-	public double getCompleted() {
-		return completed;
-	}
-
-	public double getSpeed() {
-		return speed;
-	}
-
-	public double getRate() {
-		return rate;
-	}
-
-	public double getRate_low() {
-		return rate_low;
-	}
-
-	public double getRate_high() {
-		return rate_high;
-	}
-
-	public double getPrime_speed() {
-		return prime_speed;
-	}
-
-	public double getPercent_rate() {
-		return percent_rate;
-	}
-
-	public BenchmarkSettings getSettings() {
-		return settings;
-	}
-
-	public double getPrime_time() {
-		return prime_time;
-	}
-
-	public int getMaximum_tests() {
-		return maximum_tests;
-	}
-
-	public double getPercent_variation() {
-		return percent_variation;
-	}
-
-	public double getUpdate_frequency() {
-		return update_frequency;
-	}
-
-	public BenchmarkPrinter getPrinter() {
-		return printer;
-	}
+  public void backprint(String string) {
+    System.out.print("\r" + string);
+  }
 
 
 
