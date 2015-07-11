@@ -36,7 +36,7 @@ class Benchmark {
 
     long
       completed = 0,
-      elasped_time = 0,
+      elapsed_time = 0,
       current_time = getTime(),
       test_time = 0,
       test_duration = 0,
@@ -49,9 +49,10 @@ class Benchmark {
       speed = 0,
       speed_v = 0,
       rate = 0,
-      prime_time = 60000000000l,
+      prime_time = 15000000000l,
       display_frequency = 50000000l,
       sample_frequency = 5000000l,
+      maximum_speed = 0,
       mean = 0,
       stdev = 0,
       cov = 0;
@@ -63,19 +64,23 @@ class Benchmark {
       completed = WarGameThread.getCompleted(threads);
 
       current_time = getTime();
-      elasped_time = current_time - start_time;
+      elapsed_time = current_time - start_time;
 
-      rate = elasped_time / completed;
+      rate = elapsed_time / completed;
 
       speed = 1 / rate;
       speed_v = speed * MS;
 
-      if (!test_started && elasped_time >= prime_time) {
+      if (maximum_speed < speed_v) {
+        maximum_speed = speed_v;
+      }
+
+      if (!test_started && elapsed_time >= prime_time) {
         test_started = true;
         System.out.println(String.format("\n%d. prime time has ended", phase));
         phase = 2;
         System.out.println(String.format("\n%d. stability testing has started", phase));
-      } else if (test_started && elasped_time >= test_time) {
+      } else if (test_started && elapsed_time >= test_time) {
 
         mean = get_mean(samples);
         stdev = get_standard_deviation(samples, mean);
@@ -83,11 +88,11 @@ class Benchmark {
 
         // backprint(String.format("mean = %.5f; stdev = %.5f; cov = %.5f; N = %d; t = %d", mean, stdev, cov, samples.size(), tests));
 
-        if (cov <= 1.0 || tests >= maximum_tests) {
+        if (cov <= 5.0 || tests >= maximum_tests) {
           break;
         } else {
           test_duration = 1;
-          test_time = elasped_time + (test_duration * NS);
+          test_time = elapsed_time + (test_duration * NS);
         }
         tests++;
       }
@@ -103,12 +108,12 @@ class Benchmark {
         if (phase == 1) {
           backprint(
             String.format("%d. et = %d; g = %d; s = %.5f g/ms;\t",
-            phase, (int)(elasped_time / NS), completed, speed_v
+            phase, (int)(elapsed_time / NS), completed, speed_v
           ));
         } else {
           backprint(
-            String.format("%d. et = %d; g = %d; s = %.5f g/ms; t = %d; v = %.5f%%\t",
-            phase, elasped_time / NS, completed, speed_v, tests, ((1.0/cov)*100)
+            String.format("%d. et = %d; g = %d; s = %.5f g/ms; t = %d; v = %.2f%%\t",
+            phase, elapsed_time / NS, completed, speed_v, tests, ((1.0/cov)*100)
           ));
         }
 
@@ -123,8 +128,27 @@ class Benchmark {
     stop();
     System.out.println(String.format("\n%d. %d tasks stopped", phase, tasks));
 
+    mean = get_mean(samples);
+    stdev = get_standard_deviation(samples, mean);
+    cov = get_coefficient_of_variation(mean, stdev);
 
-    System.out.println("--- ended");
+    System.out.println("\n---\n");
+
+    System.out.println(String.format("Samples: %d collected", samples.size()));
+    System.out.println(String.format("Mean: %.5f", mean));
+    System.out.println(String.format("Standard Deviation: %.5f", stdev));
+    System.out.println(String.format("Coefficient of Varation: %.5f", cov));
+    System.out.println(String.format("Coefficient of Varation: %.2f%%", (1/cov)*100));
+    System.out.println(String.format("Maximum Speed: %.5f", maximum_speed));
+
+    System.out.println("\n---\n");
+
+    System.out.println(String.format("Threads: %d", tasks));
+    System.out.println(String.format("Speed: %.5f", speed_v));
+    System.out.println(String.format("Total Games: %d", completed));
+    System.out.println(String.format("Elapsed Time: %d nanoseconds; %d seconds", elapsed_time, elapsed_time / NS));
+
+    System.out.println(String.format("\nScore: %d\n", Math.round(speed_v)));
 
   }
 
