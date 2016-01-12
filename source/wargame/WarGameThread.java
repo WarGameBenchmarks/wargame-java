@@ -25,7 +25,7 @@ class WarGameThread extends Thread {
 	public static void launch(WarGameThread[] threads) {
 		for (WarGameThread t: threads) {
 			t.start();
-		}	
+		}
 	}
 
 	public static void terminateThreads(WarGameThread[] threads) {
@@ -44,12 +44,12 @@ class WarGameThread extends Thread {
 	public void terminate() {
 		this.terminate = true;
 	}
-	
+
 	public void run() {
 		while ( !this.terminate ) {
-			this.processed++;
 			WarGame wg = new WarGame();
-		}	
+			this.processed++;
+		}
 
 	}
 
