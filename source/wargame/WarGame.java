@@ -61,9 +61,6 @@ class WarGame {
 
     }
 
-    System.out.printf("p1 %d - p2 %d\n", player[0].getSize(), player[1].getSize());
-    // System.out.println("testing");
-
   }
 
 }

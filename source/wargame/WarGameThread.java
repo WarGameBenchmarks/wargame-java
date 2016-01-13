@@ -22,13 +22,21 @@ class WarGameThread extends Thread {
 		return processed;
 	}
 
+	public static WarGameThread[] create(int threads) {
+		WarGameThread[] wgThreads = new WarGameThread[threads];
+		for (int i = 0; i < threads; i++) {
+			wgThreads[i] = new WarGameThread();
+		}
+		return wgThreads;
+	}
+
 	public static void launch(WarGameThread[] threads) {
 		for (WarGameThread t: threads) {
 			t.start();
 		}
 	}
 
-	public static void terminateThreads(WarGameThread[] threads) {
+	public static void end(WarGameThread[] threads) {
 		for (WarGameThread t: threads) {
 			t.terminate();
 		}
@@ -46,8 +54,9 @@ class WarGameThread extends Thread {
 	}
 
 	public void run() {
+		WarGame game = new WarGame();
 		while ( !this.terminate ) {
-			WarGame wg = new WarGame();
+			game.play();
 			this.processed++;
 		}
 

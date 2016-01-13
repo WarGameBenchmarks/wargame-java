@@ -6,8 +6,9 @@ class App {
 
 	public static void main(String[] args) {
 
-		WarGame game = new WarGame();
-		game.play();
+			Benchmark benchmark = new Benchmark();
+
+			benchmark.benchmark(4, .25);
 
 	}
 
