@@ -1,2 +1,2 @@
 cd ${0%/*}
-java -cp "bin" wargame/App
+java -cp "bin" wargame/App $@
