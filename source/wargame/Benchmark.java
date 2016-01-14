@@ -1,6 +1,6 @@
 package wargame;
 
-import java.util.ArrayList;
+import java.util.*;
 
 class Benchmark {
 
@@ -127,8 +127,14 @@ class Benchmark {
 		final double ci_upper = mean + (T_SCORE * (stdev / Math.sqrt((double)samples.size())));
 		final double ci_delta = ci_upper - ci_lower;
 
-		// TODO criteria
 
+		HashMap<String, Boolean> criteria = new HashMap<String, Boolean>();
+
+		criteria.put("1", mean_median_delta < stdev);
+		criteria.put("2", min_max_delta < max_ten_percet);
+		criteria.put("3", cov < ONE_PERCENT);
+		criteria.put("4", one_sigma_lower < speed && speed < one_sigma_upper);
+		criteria.put("5", ci_lower < speed && speed < ci_upper);
 
 		System.out.printf("\n---\n");
 
@@ -171,13 +177,70 @@ class Benchmark {
 
 		System.out.printf("---\n");
 
-		// System.out.printf("Rank: (%d/%d) %s\n", rank_passes(criteria), len(criteria), rank_letter(criteria));
-		// System.out.printf("Rank Criteria: %s\n", rank_reason(criteria));
+		System.out.printf("Rank: (%d/%d) %s\n", rankPasses(criteria), criteria.size(), rankLetter(criteria));
+		System.out.printf("Rank Criteria: %s\n", rankReason(criteria));
 
 		System.out.printf("---\n");
 
 		System.out.printf("Score: %d\n", Math.round(toms(speed)));
 
+	}
+
+	private int rankPasses(HashMap<String, Boolean> criteria) {
+		int passes = 0;
+		Iterator it = criteria.entrySet().iterator();
+		while(it.hasNext()) {
+			Map.Entry pair = (Map.Entry)it.next();
+			if ((Boolean)pair.getValue()) {
+				passes++;
+			}
+		}
+		return passes;
+	}
+
+	private String rankLetter(HashMap<String, Boolean> criteria) {
+		int passes = rankPasses(criteria);
+		String letter = "X";
+		switch (passes) {
+				case 5:
+				letter = "A+";
+				break;
+				case 4:
+				letter = "A+";
+				break;
+				case 3:
+				letter = "B";
+				break;
+				case 2:
+				letter = "C";
+				break;
+				case 1:
+				letter = "D";
+				break;
+				default:
+				letter = "F";
+				break;
+		}
+		return letter;
+	}
+
+	private String rankReason(HashMap<String, Boolean> criteria) {
+		String reason = "";
+		int passes = rankPasses(criteria);
+		if (passes == 0) {
+			reason = "none";
+		} else {
+			String s = " | ";
+			Iterator it = criteria.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pair = (Map.Entry)it.next();
+				reason += (String)pair.getKey();
+				if (it.hasNext()) {
+					reason += s;
+				}
+			}
+		}
+		return reason;
 	}
 
 	private double toms(Double f) {
