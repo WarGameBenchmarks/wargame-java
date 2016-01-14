@@ -191,7 +191,7 @@ class Benchmark {
 		Iterator it = criteria.entrySet().iterator();
 		while(it.hasNext()) {
 			Map.Entry pair = (Map.Entry)it.next();
-			if ((Boolean)pair.getValue()) {
+			if ((Boolean)pair.getValue() == true) {
 				passes++;
 			}
 		}
@@ -206,7 +206,7 @@ class Benchmark {
 				letter = "A+";
 				break;
 				case 4:
-				letter = "A+";
+				letter = "A";
 				break;
 				case 3:
 				letter = "B";
