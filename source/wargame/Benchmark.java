@@ -11,7 +11,7 @@ class Benchmark {
 		int mg = 0;
 		int times = 0;
 		int ntimes = 100;
-		long duration = NS/100;
+		long duration = NS/15;
 
 		while (times < ntimes) {
 			long start_time = System.nanoTime();
