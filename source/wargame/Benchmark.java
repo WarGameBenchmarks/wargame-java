@@ -10,8 +10,8 @@ class Benchmark {
 	private int prebench() {
 		int mg = 0;
 		int times = 0;
-		int ntimes = 100;
-		long duration = NS/15;
+		int ntimes = 200;
+		long duration = NS/20;
 
 		while (times < ntimes) {
 			long start_time = System.nanoTime();
