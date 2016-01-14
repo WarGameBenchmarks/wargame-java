@@ -38,7 +38,7 @@ class Benchmark {
 
 	public void benchmark(int threads, double multiplier) {
 
-		int base = prebench();
+		int base = prebench() / threads;
 
 		WarGameThread[] wgThreads = WarGameThread.create(threads, base);
 
