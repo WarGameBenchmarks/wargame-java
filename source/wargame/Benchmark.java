@@ -7,9 +7,40 @@ class Benchmark {
 	public static final long MS = 1000000;
 	public static final long NS = 1000000000;
 
+	private int prebench() {
+		int mg = 0;
+		int times = 0;
+		int ntimes = 100;
+		long duration = NS/100;
+
+		while (times < ntimes) {
+			long start_time = System.nanoTime();
+			long elapsed_time = 0;
+			int games = 0;
+
+			WarGame game = new WarGame();
+
+			while (elapsed_time <= duration) {
+				game.play();
+				games++;
+				elapsed_time = System.nanoTime() - start_time;
+			}
+
+			if (mg < games) {
+				System.out.printf("g %d %d\n", mg, games);
+				mg = games;
+			}
+			times++;
+		}
+
+		return mg;
+	}
+
 	public void benchmark(int threads, double multiplier) {
 
-		WarGameThread[] wgThreads = WarGameThread.create(threads);
+		int base = prebench();
+
+		WarGameThread[] wgThreads = WarGameThread.create(threads, base);
 
 		final long DISPLAY_FREQUENCY = NS/10;
 		final long SAMPLE_FREQUENCY = NS/200;
@@ -246,7 +277,7 @@ class Benchmark {
 					p[i++] = (String)pair.getKey();
 				}
 			}
-			
+
 			// merge them into a string
 			for (int k = 0; k < i; k++) {
 				reason += p[k];
