@@ -230,12 +230,29 @@ class Benchmark {
 		if (passes == 0) {
 			reason = "none";
 		} else {
+			// Only in Java
+			// Would Such
+			// A Mess Exist
+			//
 			String s = " | ";
+			String[] p = new String[passes];
 			Iterator it = criteria.entrySet().iterator();
+			int i = 0;
+
+			// collect true entries
 			while (it.hasNext()) {
 				Map.Entry pair = (Map.Entry)it.next();
-				reason += (String)pair.getKey();
-				if (it.hasNext()) {
+				if ((Boolean)pair.getValue() == true) {
+					p[i++] = (String)pair.getKey();
+				}
+			}
+			
+			// merge them into a string
+			for (int k = 0; k < i; k++) {
+				reason += p[k];
+				// do not append the separator to the last
+				// element listed
+				if (k < i-1) {
 					reason += s;
 				}
 			}
