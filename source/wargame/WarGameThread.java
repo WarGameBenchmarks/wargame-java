@@ -1,5 +1,7 @@
 package wargame;
 
+import java.util.*;
+
 class WarGameThread extends Thread {
 
 	public static boolean isAlive(WarGameThread[] threads) {
@@ -55,8 +57,9 @@ class WarGameThread extends Thread {
 
 	public void run() {
 		WarGame game = new WarGame();
+		Random rng = new Random();
 		while ( !this.terminate ) {
-			game.play();
+			game.play(rng);
 			this.processed++;
 		}
 

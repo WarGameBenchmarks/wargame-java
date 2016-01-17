@@ -1,11 +1,13 @@
 package wargame;
 
+import java.util.*;
+
 class WarGame {
 
-  public void play() {
+  public void play(Random rng) {
 
     Deck deck = Deck.fresh();
-    deck.shuffle();
+    deck.shuffle(rng);
 
     Deck[] player = deck.split();
 
@@ -40,10 +42,10 @@ class WarGame {
           player[1].giveCard(winner);
 
           if (c1.compareTo(c2) > 0) {
-            winner.shuffle();
+            winner.shuffle(rng);
             winner.giveCards(player[0]);
           } else if (c1.compareTo(c2) < 0) {
-            winner.shuffle();
+            winner.shuffle(rng);
             winner.giveCards(player[1]);
           } else {
             // another war
@@ -52,10 +54,10 @@ class WarGame {
         } while (c1.compareTo(c2) == 0);
 
       } else if (c1.compareTo(c2) > 0) {
-        winner.shuffle();
+        winner.shuffle(rng);
         winner.giveCards(player[0]);
       } else if (c1.compareTo(c2) < 0) {
-        winner.shuffle();
+        winner.shuffle(rng);
         winner.giveCards(player[1]);
       }
 

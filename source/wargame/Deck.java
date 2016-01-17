@@ -14,8 +14,8 @@ class Deck {
     cards = new ArrayList<Card>();
   }
 
-  public void shuffle() {
-    Collections.shuffle(this.cards);
+  public void shuffle(Random rng) {
+    Collections.shuffle(this.cards, rng);
   }
 
   public int getSize() {
